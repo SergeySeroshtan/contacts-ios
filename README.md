@@ -1,4 +1,4 @@
-contacts-ios
+Summary
 ============
  
  This is iOS version of [contacts][contacts:base] application.
