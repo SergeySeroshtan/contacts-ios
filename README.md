@@ -1,4 +1,6 @@
 contacts-ios
 ============
+ 
+ This is iOS version of [contacts][contacts:base] application.
 
-Quick access to corporate contacts on your iOS device.
+[contacts:base]: https://github.com/grytsenko/contacts
