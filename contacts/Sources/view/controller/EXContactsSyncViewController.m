@@ -36,19 +36,13 @@
     [self updateUI];
 }
 
-- (void)viewWillDisappear:(BOOL)animated
+#pragma mark - UI actions
+- (IBAction)removeAccount:(id)sender
 {
-    if ([self.navigationController.viewControllers indexOfObject:self] == NSNotFound) {
-        // Back button ('Sign Out') was clicked
-        [self signOut:self];
-    }
-    [super viewWillDisappear:animated];
+    [EXContactsService removeAccount];
 }
 
-#pragma mark - UI actions
-- (IBAction)signOut:(id)sender
-{
-    [EXContactsService signOut];
+- (IBAction)changeAccount:(id)sender {
 }
 
 - (IBAction)syncContacts:(id)sender {

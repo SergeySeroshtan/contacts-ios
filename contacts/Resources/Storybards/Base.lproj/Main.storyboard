@@ -4,7 +4,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
     </dependencies>
     <scenes>
-        <!--Login View Controller - Sign In-->
+        <!--Login View Controller - Start page-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
                 <viewController id="vXZ-lx-hvc" customClass="EXLoginViewController" sceneMemberID="viewController">
@@ -69,9 +69,7 @@
                         </constraints>
                     </view>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" title="Sign In" id="VKJ-sc-DMZ">
-                        <barButtonItem key="backBarButtonItem" title="Sign Out" id="8Yr-wZ-9kh"/>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Start page" id="VKJ-sc-DMZ"/>
                     <connections>
                         <outlet property="userNameTextField" destination="6Ir-F6-h81" id="WUB-xA-b6R"/>
                         <outlet property="userPasswordTextField" destination="Jqv-wm-jfr" id="ctj-CP-h2F"/>
@@ -119,7 +117,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="60" id="fM1-re-dnx"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="Sync Now">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -152,7 +150,14 @@
                             <constraint firstAttribute="trailing" secondItem="S2a-mD-Mzz" secondAttribute="trailing" constant="20" symbolic="YES" id="wIV-d6-DRc"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Contacts" id="U8d-oB-dKf"/>
+                    <navigationItem key="navigationItem" title="Contacts" id="U8d-oB-dKf">
+                        <barButtonItem key="rightBarButtonItem" title="Change" id="fME-jV-Dj0">
+                            <color key="tintColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                            <connections>
+                                <action selector="changeAccount:" destination="BJt-4T-unr" id="XMB-6X-e6M"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="lastSyncDateLabel" destination="Dio-DV-dPS" id="2HG-XD-HoY"/>
                         <outlet property="responseTextView" destination="o93-QY-YTa" id="98x-c4-12r"/>

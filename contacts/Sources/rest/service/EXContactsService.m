@@ -42,7 +42,7 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
     PRECONDITION_ARG_NOT_NIL(completion);
 
     if ([self isUserSignedIn]) {
-        [self signOut];
+        [self removeAccount];
     }
 
     [[self preparedObjectManagerWithUserName:name password:password] getObjectsAtPath:@"my.json" parameters:nil
@@ -60,11 +60,12 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
     ];
 }
 
-+ (void)signOut
++ (void)removeAccount
 {
     NSString *userName = [self signedUserName];
     if (userName != nil) {
         [SSKeychain deletePasswordForService:kContactsServiceName account:userName];
+        // TODO: Remove all related data from Address Book, reset lastSyncDate.
     }
 }
 
