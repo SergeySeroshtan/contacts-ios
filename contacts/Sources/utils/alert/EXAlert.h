@@ -11,6 +11,9 @@
 @interface EXAlert : NSObject
 
 + (void)textFiledIsEmpty:(NSString *)textFieldName;
-+ (void)userNameOrPasswordIsInvalid;
+
++ (void)error:(NSError *)error;
+
++ (void)fail:(NSError *)error;
 
 @end

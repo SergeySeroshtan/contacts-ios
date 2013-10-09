@@ -82,10 +82,10 @@
             </objects>
             <point key="canvasLocation" x="729" y="132"/>
         </scene>
-        <!--View Controller - Contacts-->
+        <!--Contacts Sync View Controller - Contacts-->
         <scene sceneID="3sb-kj-cvN">
             <objects>
-                <viewController id="BJt-4T-unr" sceneMemberID="viewController">
+                <viewController id="BJt-4T-unr" customClass="EXContactsSyncViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Lgw-a9-PMs"/>
                         <viewControllerLayoutGuide type="bottom" id="Yat-Iy-i4D"/>

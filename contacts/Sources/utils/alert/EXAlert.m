@@ -12,17 +12,30 @@
 
 + (void)textFiledIsEmpty:(NSString *)textFieldName
 {
-    NSString *title = [NSString stringWithFormat:@"Field '%@' is empty", textFieldName];
-    NSString *message = [NSString stringWithFormat:@"Please put correct value to the filed '%@'", textFieldName];
+    NSString *titleTemplate = NSLocalizedString(@"Field '%@' is empty",
+            @"Title for alert that notifies user about required empty text field.");
+    NSString *title = [NSString stringWithFormat:titleTemplate, textFieldName];
+
+    NSString *message = NSLocalizedString(@"Please put correct value to this filed.",
+            @"Message for alert that notifies user about required empty text field.");
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil
             cancelButtonTitle:@"Ok" otherButtonTitles:nil];
     [alert show];
 }
 
-+ (void)userNameOrPasswordIsInvalid
++ (void)error:(NSError *)error
 {
-    NSString *title = @"Error";
-    NSString *message = @"User name or password is invalid";
+    NSString *title = NSLocalizedString(@"Error", "Title for 'Error' alert view.");
+    NSString *message = [error localizedDescription];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil
+            cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+    [alert show];
+}
+
++ (void)fail:(NSError *)error
+{
+    NSString *title = NSLocalizedString(@"Fail", "Title for 'Fail' alert view.");
+    NSString *message = [error localizedDescription];
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil
             cancelButtonTitle:@"Ok" otherButtonTitles:nil];
     [alert show];

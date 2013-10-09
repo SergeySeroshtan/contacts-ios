@@ -8,7 +8,10 @@
 
 #import "EXLoginViewController.h"
 
+#import <MBProgressHUD/MBProgressHUD.h>
+
 #import "EXAlert.h"
+#import "EXContactsService.h"
 
 static NSString * const kSignInToContactsSegueIdentifier = @"SignInToContactsSegueIdentifier";
 
@@ -18,17 +21,19 @@ static NSString * const kSignInToContactsSegueIdentifier = @"SignInToContactsSeg
 
 @implementation EXLoginViewController
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
+#pragma mark - UI lifecycle
+- (void)viewWillAppear:(BOOL)animated
 {
-    if (textField == self.userNameTextField) {
-        [self.userPasswordTextField becomeFirstResponder];
-    } else if (textField == self.userPasswordTextField) {
-        [textField resignFirstResponder];
-        [self signIn:textField];
+    [super viewWillAppear:animated];
+    if ([EXContactsService isUserSignedIn]) {
+        [self performSegueWithIdentifier:kSignInToContactsSegueIdentifier sender:self];
+    } else {
+        self.userNameTextField.text = @"";
+        self.userPasswordTextField.text = @"";
     }
-    return YES;
 }
 
+#pragma mark - UI actions
 - (IBAction)signIn:(id)sender {
     [self hideKeyboard];
     
@@ -42,9 +47,34 @@ static NSString * const kSignInToContactsSegueIdentifier = @"SignInToContactsSeg
         return;
     }
     
-    [self performSegueWithIdentifier:kSignInToContactsSegueIdentifier sender:sender];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
+    [EXContactsService signInUser:self.userNameTextField.text password:self.userPasswordTextField.text
+        completion:^(BOOL success, id data, NSError *error)
+        {
+            if (success) {
+                [self performSegueWithIdentifier:kSignInToContactsSegueIdentifier sender:sender];
+            } else {
+                [EXAlert fail:error];
+            }
+            [hud hide:YES];
+        }
+    ];
 }
 
+#pragma mark - UITextFieldDelegate protocol
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    if (textField == self.userNameTextField) {
+        [self.userPasswordTextField becomeFirstResponder];
+    } else if (textField == self.userPasswordTextField) {
+        [textField resignFirstResponder];
+        [self signIn:textField];
+    }
+    return YES;
+}
+
+#pragma mark - Private
+#pragma mark - UI helpers
 - (void)hideKeyboard
 {
     [self.view endEditing:YES];
