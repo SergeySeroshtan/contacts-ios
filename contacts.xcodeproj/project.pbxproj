@@ -19,6 +19,8 @@
 		681136C118041AC300BFB3BD /* EXContactsMapping.m in Sources */ = {isa = PBXBuildFile; fileRef = 681136C018041AC300BFB3BD /* EXContactsMapping.m */; };
 		681136C4180439E100BFB3BD /* EXContactsService.m in Sources */ = {isa = PBXBuildFile; fileRef = 681136C3180439E100BFB3BD /* EXContactsService.m */; };
 		681136C718054C7600BFB3BD /* EXContactsSyncViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 681136C618054C7600BFB3BD /* EXContactsSyncViewController.m */; };
+		681136C918055FF400BFB3BD /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 681136C818055FF400BFB3BD /* Settings.bundle */; };
+		681136CD18056DC400BFB3BD /* EXAppSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 681136CC18056DC400BFB3BD /* EXAppSettings.m */; };
 		6879F6851802E7450069226A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6879F6841802E7450069226A /* Foundation.framework */; };
 		6879F6871802E7450069226A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6879F6861802E7450069226A /* CoreGraphics.framework */; };
 		6879F6891802E7450069226A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6879F6881802E7450069226A /* UIKit.framework */; };
@@ -48,6 +50,9 @@
 		681136C3180439E100BFB3BD /* EXContactsService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXContactsService.m; sourceTree = "<group>"; };
 		681136C518054C7600BFB3BD /* EXContactsSyncViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXContactsSyncViewController.h; sourceTree = "<group>"; };
 		681136C618054C7600BFB3BD /* EXContactsSyncViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXContactsSyncViewController.m; sourceTree = "<group>"; };
+		681136C818055FF400BFB3BD /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		681136CB18056DC400BFB3BD /* EXAppSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXAppSettings.h; sourceTree = "<group>"; };
+		681136CC18056DC400BFB3BD /* EXAppSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXAppSettings.m; sourceTree = "<group>"; };
 		6879F6811802E7450069226A /* contacts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = contacts.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6879F6841802E7450069226A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		6879F6861802E7450069226A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -120,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				680BCD151802E85800CEBF9C /* contacts-Info.plist */,
+				681136C818055FF400BFB3BD /* Settings.bundle */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -138,6 +144,7 @@
 		680BCD171802E85800CEBF9C /* app */ = {
 			isa = PBXGroup;
 			children = (
+				681136CA18056DA700BFB3BD /* settings */,
 				680BCD181802E85800CEBF9C /* contacts-Prefix.pch */,
 				680BCD191802E85800CEBF9C /* EXAppDelegate.h */,
 				680BCD1A1802E85800CEBF9C /* EXAppDelegate.m */,
@@ -219,6 +226,15 @@
 				681136C3180439E100BFB3BD /* EXContactsService.m */,
 			);
 			path = service;
+			sourceTree = "<group>";
+		};
+		681136CA18056DA700BFB3BD /* settings */ = {
+			isa = PBXGroup;
+			children = (
+				681136CB18056DC400BFB3BD /* EXAppSettings.h */,
+				681136CC18056DC400BFB3BD /* EXAppSettings.m */,
+			);
+			path = settings;
 			sourceTree = "<group>";
 		};
 		6879F6781802E7450069226A = {
@@ -306,6 +322,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				681136C918055FF400BFB3BD /* Settings.bundle in Resources */,
 				680BCD271802E85800CEBF9C /* Images.xcassets in Resources */,
 				680BCD291802E85800CEBF9C /* InfoPlist.strings in Resources */,
 				680BCD281802E85800CEBF9C /* Main.storyboard in Resources */,
@@ -355,6 +372,7 @@
 				680BCD2C1802E85800CEBF9C /* main.m in Sources */,
 				680BCD2D1802E85800CEBF9C /* EXAlert.m in Sources */,
 				680BCD2F1802E85800CEBF9C /* EXLoginViewController.m in Sources */,
+				681136CD18056DC400BFB3BD /* EXAppSettings.m in Sources */,
 				681136C4180439E100BFB3BD /* EXContactsService.m in Sources */,
 				680BCD2B1802E85800CEBF9C /* EXAppDelegate.m in Sources */,
 				681136C718054C7600BFB3BD /* EXContactsSyncViewController.m in Sources */,

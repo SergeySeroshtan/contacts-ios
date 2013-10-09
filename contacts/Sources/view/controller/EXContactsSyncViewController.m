@@ -10,20 +10,30 @@
 
 #import <MBProgressHUD/MBProgressHUD.h>
 
-#import "EXContactsService.h"
 #import "EXAlert.h"
+#import "EXAppSettings.h"
+#import "EXContactsService.h"
 
 @interface EXContactsSyncViewController ()
+
+@property (strong, nonatomic) NSDateFormatter *lastSyncDateFormatter;
 
 @end
 
 @implementation EXContactsSyncViewController
 
 #pragma mark - UI lifecycle
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    self.lastSyncDateFormatter  = [[NSDateFormatter alloc] init];
+    [self.lastSyncDateFormatter setDateFormat:@"dd/MM/yyyy hh:mm:ss"];
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    self.userNameLabel.text = [EXContactsService signedUserName];
+    [self updateUI];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -51,13 +61,28 @@
                     [self.responseTextView insertText:contact.mail];
                     [self.responseTextView insertText:@"\n"];
                 }
+                [EXAppSettings setLastSyncDate:[NSDate date]];
                 [hud hide:YES];
+                [self updateUI];
             } else {
                 [hud hide:YES];
                 [EXAlert fail:error];
             }
         }
     ];
+}
+
+#pragma mark - UI helpers
+/**
+ * Updates all UI components.
+ */
+- (void)updateUI
+{
+    self.userNameLabel.text = [EXContactsService signedUserName];
+    NSDate *lastSyncDate = [EXAppSettings lastSyncDate];
+    NSString *lastSyncDateString =
+            lastSyncDate != nil ? [self.lastSyncDateFormatter stringFromDate:lastSyncDate] : @"undefined";
+    self.lastSyncDateLabel.text = lastSyncDateString;
 }
 
 @end
