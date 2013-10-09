@@ -57,15 +57,15 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="6Ir-F6-h81" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" id="3dh-fN-Pv0"/>
-                            <constraint firstAttribute="trailing" secondItem="Jqv-wm-jfr" secondAttribute="trailing" constant="20" id="40o-hf-TFt"/>
+                            <constraint firstItem="6Ir-F6-h81" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" symbolic="YES" id="3dh-fN-Pv0"/>
+                            <constraint firstAttribute="trailing" secondItem="Jqv-wm-jfr" secondAttribute="trailing" constant="20" symbolic="YES" id="40o-hf-TFt"/>
                             <constraint firstItem="Jqv-wm-jfr" firstAttribute="top" secondItem="6Ir-F6-h81" secondAttribute="bottom" constant="8" symbolic="YES" id="8v4-06-FSN"/>
                             <constraint firstItem="6Ir-F6-h81" firstAttribute="top" secondItem="9c8-v0-hDO" secondAttribute="bottom" constant="50" id="FnU-Jh-qBK"/>
-                            <constraint firstItem="Jqv-wm-jfr" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" id="Ha4-j0-tVA"/>
+                            <constraint firstItem="Jqv-wm-jfr" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" symbolic="YES" id="Ha4-j0-tVA"/>
                             <constraint firstItem="m5n-wl-A63" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" id="mOh-gp-Oky"/>
                             <constraint firstItem="m5n-wl-A63" firstAttribute="top" secondItem="Jqv-wm-jfr" secondAttribute="bottom" constant="8" symbolic="YES" id="nxv-Kf-EYN"/>
                             <constraint firstAttribute="trailing" secondItem="m5n-wl-A63" secondAttribute="trailing" constant="20" id="scO-EG-snf"/>
-                            <constraint firstAttribute="trailing" secondItem="6Ir-F6-h81" secondAttribute="trailing" constant="20" id="uTM-cX-9hu"/>
+                            <constraint firstAttribute="trailing" secondItem="6Ir-F6-h81" secondAttribute="trailing" constant="20" symbolic="YES" id="uTM-cX-9hu"/>
                         </constraints>
                     </view>
                     <toolbarItems/>
@@ -93,9 +93,72 @@
                     <view key="view" contentMode="scaleToFill" id="njW-v2-uIE">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="username" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="S2a-mD-Mzz">
+                                <rect key="frame" x="20" y="72" width="280" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="JDK-cz-Fj9"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="last synced date" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dio-DV-dPS">
+                                <rect key="frame" x="20" y="110" width="280" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="WQe-dL-Nrb"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5YG-GZ-L6k">
+                                <rect key="frame" x="20" y="500" width="280" height="60"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="fM1-re-dnx"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                <state key="normal" title="Sync Now">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="syncContacts:" destination="BJt-4T-unr" eventType="touchUpInside" id="uRH-sa-fi3"/>
+                                </connections>
+                            </button>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o93-QY-YTa">
+                                <rect key="frame" x="20" y="148" width="280" height="344"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="o93-QY-YTa" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="8HZ-AW-9yO"/>
+                            <constraint firstAttribute="trailing" secondItem="Dio-DV-dPS" secondAttribute="trailing" constant="20" symbolic="YES" id="FSL-OU-RRF"/>
+                            <constraint firstItem="S2a-mD-Mzz" firstAttribute="top" secondItem="Lgw-a9-PMs" secondAttribute="bottom" constant="20" symbolic="YES" id="KoX-Wk-pf0"/>
+                            <constraint firstItem="S2a-mD-Mzz" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="OfO-Kl-17Y"/>
+                            <constraint firstItem="o93-QY-YTa" firstAttribute="top" secondItem="Dio-DV-dPS" secondAttribute="bottom" constant="8" symbolic="YES" id="TGy-eb-dOP"/>
+                            <constraint firstAttribute="trailing" secondItem="o93-QY-YTa" secondAttribute="trailing" constant="20" symbolic="YES" id="Vxv-HZ-cfM"/>
+                            <constraint firstItem="Dio-DV-dPS" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="WSn-zY-NBI"/>
+                            <constraint firstItem="Dio-DV-dPS" firstAttribute="top" secondItem="S2a-mD-Mzz" secondAttribute="bottom" constant="8" symbolic="YES" id="eu6-Li-y15"/>
+                            <constraint firstItem="Yat-Iy-i4D" firstAttribute="top" secondItem="5YG-GZ-L6k" secondAttribute="bottom" constant="20" symbolic="YES" id="pfy-MM-pvY"/>
+                            <constraint firstItem="5YG-GZ-L6k" firstAttribute="top" secondItem="o93-QY-YTa" secondAttribute="bottom" constant="8" symbolic="YES" id="qCQ-co-yxZ"/>
+                            <constraint firstItem="5YG-GZ-L6k" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="ugt-rS-aZu"/>
+                            <constraint firstAttribute="trailing" secondItem="5YG-GZ-L6k" secondAttribute="trailing" constant="20" symbolic="YES" id="w6H-qx-pAV"/>
+                            <constraint firstAttribute="trailing" secondItem="S2a-mD-Mzz" secondAttribute="trailing" constant="20" symbolic="YES" id="wIV-d6-DRc"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Contacts" id="U8d-oB-dKf"/>
+                    <connections>
+                        <outlet property="lastSyncDateLabel" destination="Dio-DV-dPS" id="2HG-XD-HoY"/>
+                        <outlet property="responseTextView" destination="o93-QY-YTa" id="98x-c4-12r"/>
+                        <outlet property="syncContactsButton" destination="5YG-GZ-L6k" id="POg-cG-tCD"/>
+                        <outlet property="userNameLabel" destination="S2a-mD-Mzz" id="R3B-Qz-K4E"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HQ3-jS-BdZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

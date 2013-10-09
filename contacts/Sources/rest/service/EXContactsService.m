@@ -76,7 +76,8 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
 
 + (NSString *)signedUserName
 {
-    NSString *userName = [[SSKeychain accountsForService:kContactsServiceName] lastObject];
+    NSDictionary *userAccount = [[SSKeychain accountsForService:kContactsServiceName] lastObject];
+    NSString *userName = [userAccount objectForKey:kSSKeychainAccountKey];
     return [SSKeychain passwordForService:kContactsServiceName account:userName] != nil ? userName : nil;
 }
 
@@ -95,15 +96,48 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
         }
         failure:^(RKObjectRequestOperation *operation, NSError *error)
         {
-            // TODO: determine error code
-            completion(NO, nil, [self notAvailableError]);
+            NSHTTPURLResponse *response =
+                    [error.userInfo valueForKeyPath:AFNetworkingOperationFailingURLResponseErrorKey];
+            static const int kStatusCode_NotAuthorized = 401;
+            if (response == nil) {
+                completion(NO, nil, [self internalError]);
+            } else if (response.statusCode == kStatusCode_NotAuthorized) {
+                completion(NO, nil, [self notAuthorizedError]);
+            } else {
+                completion(NO, nil, [self notAvailableError]);
+            }
+            NSLog(@"Request my contact error: %@", error);
         }
     ];
 }
 
 + (void)coworkers:(EXContactsServiceCompletion)completion
 {
-
+    if (![self isUserSignedIn]) {
+        completion(NO, nil, [self notAuthorizedError]);
+        return;
+    }
+    
+    [[self preparedObjectManager] getObjectsAtPath:@"coworkers.json" parameters:nil
+        success:^(RKObjectRequestOperation *operation, RKMappingResult *mappingResult)
+        {
+            completion(YES, [mappingResult array], nil);
+        }
+        failure:^(RKObjectRequestOperation *operation, NSError *error)
+        {
+            NSHTTPURLResponse *response =
+                    [error.userInfo valueForKeyPath:AFNetworkingOperationFailingURLResponseErrorKey];
+            static const int kStatusCode_NotAuthorized = 401;
+            if (response == nil) {
+                completion(NO, nil, [self internalError]);
+            } else if (response.statusCode == kStatusCode_NotAuthorized) {
+                completion(NO, nil, [self notAuthorizedError]);
+            } else {
+                completion(NO, nil, [self notAvailableError]);
+            }
+            NSLog(@"Request coworkers error: %@", error);
+        }
+    ];
 }
 
 #pragma mark - Private
