@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="bkj-ce-KR1">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
     </dependencies>
@@ -7,7 +7,7 @@
         <!--Login View Controller - Start page-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
-                <viewController id="vXZ-lx-hvc" customClass="EXLoginViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LoginViewControllerId" id="vXZ-lx-hvc" customClass="EXLoginViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="9c8-v0-hDO"/>
                         <viewControllerLayoutGuide type="bottom" id="DgQ-mt-i4e"/>
@@ -16,37 +16,37 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" placeholder="User name" minimumFontSize="14" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="6Ir-F6-h81">
-                                <rect key="frame" x="20" y="114" width="280" height="50"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="bezel" placeholder="User name" minimumFontSize="14" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="6Ir-F6-h81">
+                                <rect key="frame" x="20" y="114" width="280" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="3UF-MJ-f8U"/>
+                                    <constraint firstAttribute="height" constant="30" id="3UF-MJ-f8U"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" returnKeyType="next"/>
                                 <connections>
                                     <outlet property="delegate" destination="vXZ-lx-hvc" id="XdA-y7-Hme"/>
                                 </connections>
                             </textField>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="line" placeholder="Password" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="Jqv-wm-jfr">
-                                <rect key="frame" x="20" y="172" width="280" height="50"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="bezel" placeholder="Password" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="Jqv-wm-jfr">
+                                <rect key="frame" x="20" y="152" width="280" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="YkO-Eg-u0E"/>
+                                    <constraint firstAttribute="height" constant="30" id="YkO-Eg-u0E"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" returnKeyType="go" secureTextEntry="YES"/>
                                 <connections>
                                     <outlet property="delegate" destination="vXZ-lx-hvc" id="hRk-qy-nqc"/>
                                 </connections>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="m5n-wl-A63">
-                                <rect key="frame" x="20" y="230" width="280" height="50"/>
+                                <rect key="frame" x="20" y="190" width="280" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="snP-xb-nTs"/>
+                                    <constraint firstAttribute="height" constant="30" id="snP-xb-nTs"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <state key="normal" title="Sign In">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -73,7 +73,7 @@
                     <connections>
                         <outlet property="userNameTextField" destination="6Ir-F6-h81" id="WUB-xA-b6R"/>
                         <outlet property="userPasswordTextField" destination="Jqv-wm-jfr" id="ctj-CP-h2F"/>
-                        <segue destination="BJt-4T-unr" kind="push" identifier="SignInToContactsSegueIdentifier" id="S8Z-eB-fsH"/>
+                        <segue destination="gme-Z7-r5k" kind="modal" identifier="LoginToContactsSegueId" id="S8Z-eB-fsH"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -83,7 +83,7 @@
         <!--Contacts Sync View Controller - Contacts-->
         <scene sceneID="3sb-kj-cvN">
             <objects>
-                <viewController id="BJt-4T-unr" customClass="EXContactsSyncViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ContactsViewControllerId" id="BJt-4T-unr" customClass="EXContactsSyncViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Lgw-a9-PMs"/>
                         <viewControllerLayoutGuide type="bottom" id="Yat-Iy-i4D"/>
@@ -98,7 +98,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="JDK-cz-Fj9"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -108,16 +108,16 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="WQe-dL-Nrb"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5YG-GZ-L6k">
-                                <rect key="frame" x="20" y="500" width="280" height="60"/>
+                                <rect key="frame" x="20" y="530" width="280" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="60" id="fM1-re-dnx"/>
+                                    <constraint firstAttribute="height" constant="30" id="fM1-re-dnx"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <state key="normal" title="Sync Now">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -126,7 +126,7 @@
                                 </connections>
                             </button>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o93-QY-YTa">
-                                <rect key="frame" x="20" y="148" width="280" height="344"/>
+                                <rect key="frame" x="20" y="148" width="280" height="374"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -137,8 +137,8 @@
                         <constraints>
                             <constraint firstItem="o93-QY-YTa" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="8HZ-AW-9yO"/>
                             <constraint firstAttribute="trailing" secondItem="Dio-DV-dPS" secondAttribute="trailing" constant="20" symbolic="YES" id="FSL-OU-RRF"/>
-                            <constraint firstItem="S2a-mD-Mzz" firstAttribute="top" secondItem="Lgw-a9-PMs" secondAttribute="bottom" constant="20" symbolic="YES" id="KoX-Wk-pf0"/>
                             <constraint firstItem="S2a-mD-Mzz" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="OfO-Kl-17Y"/>
+                            <constraint firstItem="S2a-mD-Mzz" firstAttribute="top" secondItem="Lgw-a9-PMs" secondAttribute="bottom" constant="20" symbolic="YES" id="RFg-ST-MhI"/>
                             <constraint firstItem="o93-QY-YTa" firstAttribute="top" secondItem="Dio-DV-dPS" secondAttribute="bottom" constant="8" symbolic="YES" id="TGy-eb-dOP"/>
                             <constraint firstAttribute="trailing" secondItem="o93-QY-YTa" secondAttribute="trailing" constant="20" symbolic="YES" id="Vxv-HZ-cfM"/>
                             <constraint firstItem="Dio-DV-dPS" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="WSn-zY-NBI"/>
@@ -151,8 +151,7 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Contacts" id="U8d-oB-dKf">
-                        <barButtonItem key="rightBarButtonItem" title="Change" id="fME-jV-Dj0">
-                            <color key="tintColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="fME-jV-Dj0">
                             <connections>
                                 <action selector="changeAccount:" destination="BJt-4T-unr" id="XMB-6X-e6M"/>
                             </connections>
@@ -163,29 +162,30 @@
                         <outlet property="responseTextView" destination="o93-QY-YTa" id="98x-c4-12r"/>
                         <outlet property="syncContactsButton" destination="5YG-GZ-L6k" id="POg-cG-tCD"/>
                         <outlet property="userNameLabel" destination="S2a-mD-Mzz" id="R3B-Qz-K4E"/>
+                        <segue destination="vXZ-lx-hvc" kind="modal" identifier="ContactsToLoginSegueId" id="xAk-9P-V22"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HQ3-jS-BdZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1136" y="133"/>
+            <point key="canvasLocation" x="1541" y="133"/>
         </scene>
         <!--Navigation Controller-->
-        <scene sceneID="nka-YQ-UeA">
+        <scene sceneID="xfj-yI-16Y">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="bkj-ce-KR1" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="ContactsNavigationControllerId" automaticallyAdjustsScrollViewInsets="NO" id="gme-Z7-r5k" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Cbz-4N-zpG">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="GaP-jn-Ctu">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="vXZ-lx-hvc" kind="relationship" relationship="rootViewController" id="YQo-bL-Feu"/>
+                        <segue destination="BJt-4T-unr" kind="relationship" relationship="rootViewController" id="VGD-cj-Fmg"/>
                     </connections>
                 </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="lpk-Iv-Zup" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="1MN-Py-yt0" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="325" y="132"/>
+            <point key="canvasLocation" x="1136" y="133"/>
         </scene>
     </scenes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

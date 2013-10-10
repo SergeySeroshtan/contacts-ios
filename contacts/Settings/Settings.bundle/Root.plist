@@ -62,22 +62,6 @@
 			<key>DefaultValue</key>
 			<string>coworkers</string>
 		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-			<key>Title</key>
-			<string>Info</string>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSTitleValueSpecifier</string>
-			<key>Title</key>
-			<string>Last Sync</string>
-			<key>Key</key>
-			<string>LastSyncDateKey</string>
-			<key>DefaultValue</key>
-			<string>undefined</string>
-		</dict>
 	</array>
 	<key>StringsTable</key>
 	<string>Root</string>

@@ -9,12 +9,15 @@
 #import "EXContactsSyncViewController.h"
 
 #import <MBProgressHUD/MBProgressHUD.h>
+#import <SHActionSheetBlocks/UIActionSheet+SHActionSheetBlocks.h>
+#import <SHAlertViewBlocks/UIAlertView+SHAlertViewBlocks.h>
 
 #import "EXAlert.h"
 #import "EXAppSettings.h"
 #import "EXContactsService.h"
+#import "EXMainStoryboard.h"
 
-@interface EXContactsSyncViewController ()
+@interface EXContactsSyncViewController () <UIActionSheetDelegate>
 
 @property (strong, nonatomic) NSDateFormatter *lastSyncDateFormatter;
 
@@ -37,16 +40,54 @@
 }
 
 #pragma mark - UI actions
-- (IBAction)removeAccount:(id)sender
+- (void)removeAccount
 {
-    [EXContactsService removeAccount];
+    NSString *cancelButtonTitle =
+            NSLocalizedString(@"Cancel", @"Remove account confirmation alert | Cancel button title.");
+
+    NSString *confirmationTitle =
+            NSLocalizedString(@"Attention", @"Remove account confirmation alert | Title");
+
+    NSString *removeAccountButtonTitle =
+            NSLocalizedString(@"Remove", @"Remove account confirmation alert | Remove account button title");
+
+    NSString *confirmationMessage =
+            NSLocalizedString(@"Removing account will also remove all contacts from your address book!",
+                    @"Remove account confirmation alert | Message");
+
+    UIAlertView *confirmation = [UIAlertView SH_alertViewWithTitle:confirmationTitle
+        andMessage:confirmationMessage buttonTitles:@[removeAccountButtonTitle]
+        cancelTitle:cancelButtonTitle withBlock:^(NSInteger buttonIndex) {
+            const NSInteger removeAccountButtonIndex = 1;
+            if (buttonIndex == removeAccountButtonIndex) {
+                [EXContactsService removeAccount];
+                [self performSegueWithIdentifier:[EXMainStoryboard contactsToLoginViewControllerSegueId]
+                        sender:self.view];
+            }
+        }];
+    [confirmation show];
 }
 
 - (IBAction)changeAccount:(id)sender {
+    NSString *cancelButtonTitle = NSLocalizedString(@"Cancel", @"Edit view | Change sheet | Cancel button title.");
+    NSString *removeAccountButtonTitle =
+            NSLocalizedString(@"Remove account", @"Edit view | Change sheet | Remove account button title.");
+
+    UIActionSheet *changeAccountSheet = [UIActionSheet SH_actionSheetWithTitle:nil buttonTitles:nil
+        cancelTitle:cancelButtonTitle destructiveTitle:removeAccountButtonTitle
+        withBlock:^(NSInteger buttonIndex)
+        {
+            const NSInteger removeAccountButtonIndex = 0;
+            if (buttonIndex == removeAccountButtonIndex) {
+                [self removeAccount];
+            }
+        }
+    ];
+    [changeAccountSheet showInView:self.view];
 }
 
 - (IBAction)syncContacts:(id)sender {
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     [EXContactsService
         coworkers:^(BOOL success, id data, NSError *error)
         {

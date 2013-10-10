@@ -8,9 +8,6 @@
 
 #import "EXAppSettings.h"
 
-#pragma mark - Date format
-NSString * const kDateFromat_LastSync = @"dd/MM/yyyy hh:mm:ss";
-
 #pragma mark - Keys
 static NSString * const kRootSettingsKey_LoadPhotos = @"LoadPhotosKey";
 static NSString * const kRootSettingsKey_UseMobileNetworks = @"UseMobileNetworksKey";
@@ -19,16 +16,6 @@ static NSString * const kRootSettingsKey_CoworkersGroupName = @"CoworkersGroupKe
 static NSString * const kRootSettingsKey_LastSyncDate = @"LastSyncDateKey";
 
 @implementation EXAppSettings
-
-// Date formatter for lastSyncDate setting
-static NSDateFormatter *lastSyncDateFormatter = nil;
-
-#pragma mark - Initialize
-+ (void)initialize
-{
-    lastSyncDateFormatter = [[NSDateFormatter alloc] init];
-    [lastSyncDateFormatter setDateFormat:kDateFromat_LastSync];
-}
 
 #pragma mark - Network
 + (BOOL)loadPhotots
@@ -80,15 +67,18 @@ static NSDateFormatter *lastSyncDateFormatter = nil;
 #pragma mark - Info
 + (NSDate *)lastSyncDate
 {
-    NSString *dateString = [[NSUserDefaults standardUserDefaults] stringForKey:kRootSettingsKey_LastSyncDate];
-    return [lastSyncDateFormatter dateFromString:dateString];
+    return [[NSUserDefaults standardUserDefaults] objectForKey:kRootSettingsKey_LastSyncDate];
 }
 
 + (void)setLastSyncDate:(NSDate *)date
 {
-    NSString *dateString = [lastSyncDateFormatter stringFromDate:date];
-    [[NSUserDefaults standardUserDefaults] setObject:dateString forKey:kRootSettingsKey_LastSyncDate];
+    [[NSUserDefaults standardUserDefaults] setObject:date forKey:kRootSettingsKey_LastSyncDate];
     [self save];
+}
+
++ (void)removeLastSyncDate
+{
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRootSettingsKey_LastSyncDate];
 }
 
 #pragma mark - Private

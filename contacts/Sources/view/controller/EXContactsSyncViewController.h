@@ -19,6 +19,5 @@
 /// @name UI actions
 - (IBAction)syncContacts:(id)sender;
 - (IBAction)changeAccount:(id)sender;
-- (IBAction)removeAccount:(id)sender;
 
 @end

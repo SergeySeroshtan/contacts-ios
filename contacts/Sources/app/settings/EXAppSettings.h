@@ -13,6 +13,7 @@
  */
 @interface EXAppSettings : NSObject
 
+/// @name Root settings
 /// @name Network
 + (BOOL)loadPhotots;
 + (void)setLoadPhotos:(BOOL)enable;
@@ -28,8 +29,8 @@
 + (NSString *)coworkersGroupName;
 + (void)setCoworkersGroupName:(NSString *)groupName;
 
-/// @name Info
+/// @name Utility settings
 + (NSDate *)lastSyncDate;
 + (void)setLastSyncDate:(NSDate *)date;
-
++ (void)removeLastSyncDate;
 @end

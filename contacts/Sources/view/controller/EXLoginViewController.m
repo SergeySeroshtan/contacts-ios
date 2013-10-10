@@ -12,8 +12,7 @@
 
 #import "EXAlert.h"
 #import "EXContactsService.h"
-
-static NSString * const kSignInToContactsSegueIdentifier = @"SignInToContactsSegueIdentifier";
+#import "EXMainStoryboard.h"
 
 @interface EXLoginViewController () <UITextFieldDelegate>
 
@@ -25,12 +24,8 @@ static NSString * const kSignInToContactsSegueIdentifier = @"SignInToContactsSeg
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    if ([EXContactsService isUserSignedIn]) {
-        [self performSegueWithIdentifier:kSignInToContactsSegueIdentifier sender:self];
-    } else {
-        self.userNameTextField.text = @"";
-        self.userPasswordTextField.text = @"";
-    }
+    self.userNameTextField.text = @"";
+    self.userPasswordTextField.text = @"";
 }
 
 #pragma mark - UI actions
@@ -47,12 +42,12 @@ static NSString * const kSignInToContactsSegueIdentifier = @"SignInToContactsSeg
         return;
     }
     
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     [EXContactsService signInUser:self.userNameTextField.text password:self.userPasswordTextField.text
         completion:^(BOOL success, id data, NSError *error)
         {
             if (success) {
-                [self performSegueWithIdentifier:kSignInToContactsSegueIdentifier sender:sender];
+                [self performSegueWithIdentifier:[EXMainStoryboard loginToContactsViewControllerSegueId] sender:sender];
             } else {
                 [EXAlert fail:error];
             }

@@ -24,6 +24,7 @@
 		6879F6851802E7450069226A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6879F6841802E7450069226A /* Foundation.framework */; };
 		6879F6871802E7450069226A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6879F6861802E7450069226A /* CoreGraphics.framework */; };
 		6879F6891802E7450069226A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6879F6881802E7450069226A /* UIKit.framework */; };
+		68B7D9891806B0BE008B5D82 /* EXMainStoryboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 68B7D9881806B0BE008B5D82 /* EXMainStoryboard.m */; };
 		CF5806DF732B4CA8B8FC1B65 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B1A38B55E8B94A4389447BA5 /* libPods.a */; };
 /* End PBXBuildFile section */
 
@@ -58,6 +59,8 @@
 		6879F6861802E7450069226A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		6879F6881802E7450069226A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		6879F6A31802E7460069226A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		68B7D9871806B0BE008B5D82 /* EXMainStoryboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXMainStoryboard.h; sourceTree = "<group>"; };
+		68B7D9881806B0BE008B5D82 /* EXMainStoryboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXMainStoryboard.m; sourceTree = "<group>"; };
 		B1A38B55E8B94A4389447BA5 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B6ED67CD77984ED482212DB6 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -183,6 +186,7 @@
 		680BCD231802E85800CEBF9C /* view */ = {
 			isa = PBXGroup;
 			children = (
+				68B7D9861806B09B008B5D82 /* constants */,
 				680BCD241802E85800CEBF9C /* controller */,
 			);
 			path = view;
@@ -265,6 +269,15 @@
 				B1A38B55E8B94A4389447BA5 /* libPods.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		68B7D9861806B09B008B5D82 /* constants */ = {
+			isa = PBXGroup;
+			children = (
+				68B7D9871806B0BE008B5D82 /* EXMainStoryboard.h */,
+				68B7D9881806B0BE008B5D82 /* EXMainStoryboard.m */,
+			);
+			path = constants;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -374,6 +387,7 @@
 				680BCD2F1802E85800CEBF9C /* EXLoginViewController.m in Sources */,
 				681136CD18056DC400BFB3BD /* EXAppSettings.m in Sources */,
 				681136C4180439E100BFB3BD /* EXContactsService.m in Sources */,
+				68B7D9891806B0BE008B5D82 /* EXMainStoryboard.m in Sources */,
 				680BCD2B1802E85800CEBF9C /* EXAppDelegate.m in Sources */,
 				681136C718054C7600BFB3BD /* EXContactsSyncViewController.m in Sources */,
 				681136C118041AC300BFB3BD /* EXContactsMapping.m in Sources */,

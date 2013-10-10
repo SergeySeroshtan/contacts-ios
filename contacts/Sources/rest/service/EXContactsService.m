@@ -12,6 +12,7 @@
 #import <SSKeychain/SSKeychain.h>
 
 #import "EXContactsMapping.h"
+#import "EXAppSettings.h"
 
 #pragma mark - Public constants
 NSString * const EXContactsServiceErrorDomain = @"com.exadel.donetsk.office-tools.contacts";
@@ -65,7 +66,8 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
     NSString *userName = [self signedUserName];
     if (userName != nil) {
         [SSKeychain deletePasswordForService:kContactsServiceName account:userName];
-        // TODO: Remove all related data from Address Book, reset lastSyncDate.
+        [EXAppSettings removeLastSyncDate];
+        // TODO: Remove all related data from Address Book
     }
 }
 
