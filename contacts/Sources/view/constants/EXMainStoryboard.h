@@ -14,9 +14,12 @@
 + (NSString *)loginViewControllerId;
 + (NSString *)contactsNavigationControllerId;
 + (NSString *)contactsViewControllerId;
++ (NSString *)addressBookDeniedViewControllerId;
 
 /// @name Segue identifiers
-+ (NSString *)loginToContactsViewControllerSegueId;
++ (NSString *)loginToContactsNavigationViewControllerSegueId;
 + (NSString *)contactsToLoginViewControllerSegueId;
++ (NSString *)addressBookDeniedToLoginViewControllerSegueId;
++ (NSString *)addressBookDeniedToContactsNavigationViewControllerSegueId;
 
 @end

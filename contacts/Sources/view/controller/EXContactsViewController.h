@@ -1,5 +1,5 @@
 //
-//  EXContactsSyncViewController.h
+//  EXContactsViewController.h
 //  contacts
 //
 //  Created by Sergey Seroshtan on 09.10.13.
@@ -8,7 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface EXContactsSyncViewController : UIViewController
+@class RHAddressBook;
+
+@interface EXContactsViewController : UIViewController
 
 /// @name UI outlets
 @property (weak, nonatomic) IBOutlet UILabel *userNameLabel;

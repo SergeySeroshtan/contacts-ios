@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		68038CFE1807E45100ECCBA2 /* EXAddressBookDeniedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 68038CFD1807E45100ECCBA2 /* EXAddressBookDeniedViewController.m */; };
 		680BCD271802E85800CEBF9C /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 680BCD0D1802E85800CEBF9C /* Images.xcassets */; };
 		680BCD281802E85800CEBF9C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 680BCD0F1802E85800CEBF9C /* Main.storyboard */; };
 		680BCD291802E85800CEBF9C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 680BCD121802E85800CEBF9C /* InfoPlist.strings */; };
@@ -18,7 +19,7 @@
 		681136BE180418FE00BFB3BD /* EXContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 681136BD180418FE00BFB3BD /* EXContact.m */; };
 		681136C118041AC300BFB3BD /* EXContactsMapping.m in Sources */ = {isa = PBXBuildFile; fileRef = 681136C018041AC300BFB3BD /* EXContactsMapping.m */; };
 		681136C4180439E100BFB3BD /* EXContactsService.m in Sources */ = {isa = PBXBuildFile; fileRef = 681136C3180439E100BFB3BD /* EXContactsService.m */; };
-		681136C718054C7600BFB3BD /* EXContactsSyncViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 681136C618054C7600BFB3BD /* EXContactsSyncViewController.m */; };
+		681136C718054C7600BFB3BD /* EXContactsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 681136C618054C7600BFB3BD /* EXContactsViewController.m */; };
 		681136C918055FF400BFB3BD /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 681136C818055FF400BFB3BD /* Settings.bundle */; };
 		681136CD18056DC400BFB3BD /* EXAppSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = 681136CC18056DC400BFB3BD /* EXAppSettings.m */; };
 		6879F6851802E7450069226A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6879F6841802E7450069226A /* Foundation.framework */; };
@@ -29,6 +30,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		68038CFC1807E45100ECCBA2 /* EXAddressBookDeniedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXAddressBookDeniedViewController.h; sourceTree = "<group>"; };
+		68038CFD1807E45100ECCBA2 /* EXAddressBookDeniedViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXAddressBookDeniedViewController.m; sourceTree = "<group>"; };
 		680BCD0D1802E85800CEBF9C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		680BCD101802E85800CEBF9C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		680BCD131802E85800CEBF9C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -49,8 +52,8 @@
 		681136C018041AC300BFB3BD /* EXContactsMapping.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXContactsMapping.m; sourceTree = "<group>"; };
 		681136C2180439E100BFB3BD /* EXContactsService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXContactsService.h; sourceTree = "<group>"; };
 		681136C3180439E100BFB3BD /* EXContactsService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXContactsService.m; sourceTree = "<group>"; };
-		681136C518054C7600BFB3BD /* EXContactsSyncViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXContactsSyncViewController.h; sourceTree = "<group>"; };
-		681136C618054C7600BFB3BD /* EXContactsSyncViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXContactsSyncViewController.m; sourceTree = "<group>"; };
+		681136C518054C7600BFB3BD /* EXContactsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXContactsViewController.h; sourceTree = "<group>"; };
+		681136C618054C7600BFB3BD /* EXContactsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXContactsViewController.m; sourceTree = "<group>"; };
 		681136C818055FF400BFB3BD /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		681136CB18056DC400BFB3BD /* EXAppSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXAppSettings.h; sourceTree = "<group>"; };
 		681136CC18056DC400BFB3BD /* EXAppSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXAppSettings.m; sourceTree = "<group>"; };
@@ -93,6 +96,7 @@
 		680BCD0B1802E85800CEBF9C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				68B23A68180819B600722C74 /* Database */,
 				680BCD0C1802E85800CEBF9C /* Images */,
 				680BCD0E1802E85800CEBF9C /* Storybards */,
 				680BCD111802E85800CEBF9C /* Strings */,
@@ -197,8 +201,10 @@
 			children = (
 				680BCD251802E85800CEBF9C /* EXLoginViewController.h */,
 				680BCD261802E85800CEBF9C /* EXLoginViewController.m */,
-				681136C518054C7600BFB3BD /* EXContactsSyncViewController.h */,
-				681136C618054C7600BFB3BD /* EXContactsSyncViewController.m */,
+				681136C518054C7600BFB3BD /* EXContactsViewController.h */,
+				681136C618054C7600BFB3BD /* EXContactsViewController.m */,
+				68038CFC1807E45100ECCBA2 /* EXAddressBookDeniedViewController.h */,
+				68038CFD1807E45100ECCBA2 /* EXAddressBookDeniedViewController.m */,
 			);
 			path = controller;
 			sourceTree = "<group>";
@@ -269,6 +275,13 @@
 				B1A38B55E8B94A4389447BA5 /* libPods.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		68B23A68180819B600722C74 /* Database */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Database;
 			sourceTree = "<group>";
 		};
 		68B7D9861806B09B008B5D82 /* constants */ = {
@@ -382,6 +395,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				68038CFE1807E45100ECCBA2 /* EXAddressBookDeniedViewController.m in Sources */,
 				680BCD2C1802E85800CEBF9C /* main.m in Sources */,
 				680BCD2D1802E85800CEBF9C /* EXAlert.m in Sources */,
 				680BCD2F1802E85800CEBF9C /* EXLoginViewController.m in Sources */,
@@ -389,7 +403,7 @@
 				681136C4180439E100BFB3BD /* EXContactsService.m in Sources */,
 				68B7D9891806B0BE008B5D82 /* EXMainStoryboard.m in Sources */,
 				680BCD2B1802E85800CEBF9C /* EXAppDelegate.m in Sources */,
-				681136C718054C7600BFB3BD /* EXContactsSyncViewController.m in Sources */,
+				681136C718054C7600BFB3BD /* EXContactsViewController.m in Sources */,
 				681136C118041AC300BFB3BD /* EXContactsMapping.m in Sources */,
 				680BCD2E1802E85800CEBF9C /* NSString+Utils.m in Sources */,
 				681136BE180418FE00BFB3BD /* EXContact.m in Sources */,

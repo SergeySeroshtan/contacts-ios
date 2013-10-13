@@ -10,6 +10,7 @@
 
 @implementation EXMainStoryboard
 
+#pragma mark - ViewConroller identifiers
 + (NSString *)loginViewControllerId
 {
     return @"LoginViewControllerId";
@@ -25,14 +26,30 @@
     return @"ContactsViewControllerId";
 }
 
-+ (NSString *)loginToContactsViewControllerSegueId
++ (NSString *)addressBookDeniedViewControllerId
 {
-    return @"LoginToContactsSegueId";
+    return @"AddressBookDeniedViewControllerId";
+}
+
+#pragma mark - Segue identifiers
++ (NSString *)loginToContactsNavigationViewControllerSegueId
+{
+    return @"LoginToContactsNavigationViewControllerSegueId";
 }
 
 + (NSString *)contactsToLoginViewControllerSegueId
 {
-    return @"ContactsToLoginSegueId";
+    return @"ContactsToLoginViewControllerSegueId";
+}
+
++ (NSString *)addressBookDeniedToLoginViewControllerSegueId
+{
+    return @"AddressBookDeniedToLoginViewControllerSegueId";
+}
+
++ (NSString *)addressBookDeniedToContactsNavigationViewControllerSegueId
+{
+    return @"AddressBookDeniedToContactsNavigationViewControllerSegueId";
 }
 
 @end

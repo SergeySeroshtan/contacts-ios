@@ -14,8 +14,15 @@ static NSString * const kRootSettingsKey_UseMobileNetworks = @"UseMobileNetworks
 static NSString * const kRootSettingsKey_UseLocalNotifications = @"UseLocalNotificationsKey";
 static NSString * const kRootSettingsKey_CoworkersGroupName = @"CoworkersGroupKey";
 static NSString * const kRootSettingsKey_LastSyncDate = @"LastSyncDateKey";
+static NSString * const kRootSettingsKey_ContactsDatabaseVersion = @"ContactsDatabaseVersionKey";
 
 @implementation EXAppSettings
+
+#pragma mark - Info
++ (NSString *)appVersion
+{
+    return [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleNameKey];
+}
 
 #pragma mark - Network
 + (BOOL)loadPhotots
@@ -79,6 +86,21 @@ static NSString * const kRootSettingsKey_LastSyncDate = @"LastSyncDateKey";
 + (void)removeLastSyncDate
 {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRootSettingsKey_LastSyncDate];
+}
+
++ (NSString *)contactsDatabaseVersion
+{
+    return [[NSUserDefaults standardUserDefaults] objectForKey:kRootSettingsKey_ContactsDatabaseVersion];
+}
+
++ (void)setContactsDatabaseVersion:(NSString *)version
+{
+    [[NSUserDefaults standardUserDefaults] setObject:version forKey:kRootSettingsKey_ContactsDatabaseVersion];
+}
+
++ (void)removeContactsDatabaseVersion
+{
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRootSettingsKey_ContactsDatabaseVersion];
 }
 
 #pragma mark - Private

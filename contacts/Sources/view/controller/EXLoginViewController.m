@@ -9,6 +9,7 @@
 #import "EXLoginViewController.h"
 
 #import <MBProgressHUD/MBProgressHUD.h>
+#import <SHAlertViewBlocks/SHAlertViewBlocks.h>
 
 #import "EXAlert.h"
 #import "EXContactsService.h"
@@ -41,15 +42,16 @@
         [self.userPasswordTextField becomeFirstResponder];
         return;
     }
-    
+
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     [EXContactsService signInUser:self.userNameTextField.text password:self.userPasswordTextField.text
         completion:^(BOOL success, id data, NSError *error)
         {
             if (success) {
-                [self performSegueWithIdentifier:[EXMainStoryboard loginToContactsViewControllerSegueId] sender:sender];
+                [self performSegueWithIdentifier:
+                        [EXMainStoryboard loginToContactsNavigationViewControllerSegueId] sender:sender];
             } else {
-                [EXAlert fail:error];
+                [EXAlert showWithMessage:[error localizedDescription] errorLevel:EXAlertErrorLevel_Fail];
             }
             [hud hide:YES];
         }

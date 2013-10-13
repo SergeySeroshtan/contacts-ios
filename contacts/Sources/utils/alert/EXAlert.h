@@ -8,12 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
+typedef enum {
+    EXAlertErrorLevel_Info = 0,
+    EXAlertErrorLevel_Warning,
+    EXAlertErrorLevel_Error,
+    EXAlertErrorLevel_Fail
+} EXAlertErrorLevelType;
+
 @interface EXAlert : NSObject
 
 + (void)textFiledIsEmpty:(NSString *)textFieldName;
 
-+ (void)error:(NSError *)error;
-
-+ (void)fail:(NSError *)error;
++ (void)showWithMessage:(NSString *)message errorLevel:(EXAlertErrorLevelType)errorLevel;
 
 @end

@@ -34,7 +34,7 @@ typedef void(^EXContactsServiceCompletion)(BOOL success, id data, NSError *error
 /**
  * Remove user authentication info.
  */
-+ (void)removeAccount;
++ (void)signOut;
 
 /// @name Authentication info
 /**

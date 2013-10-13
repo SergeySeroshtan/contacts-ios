@@ -19,25 +19,64 @@
     NSString *message = NSLocalizedString(@"Please put correct value to this filed.",
             @"Message for alert that notifies user about required empty text field.");
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil
-            cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+            cancelButtonTitle:[self okButtonTitle] otherButtonTitles:nil];
     [alert show];
 }
 
-+ (void)error:(NSError *)error
++ (void)showWithMessage:(NSString *)message errorLevel:(EXAlertErrorLevelType)errorLevel
 {
-    NSString *title = NSLocalizedString(@"Error", "Title for 'Error' alert view.");
-    NSString *message = [error localizedDescription];
+    NSString *title = [self infoAlertTitle];
+    switch (errorLevel) {
+        case EXAlertErrorLevel_Info:
+            title = [self infoAlertTitle];
+            break;
+        case EXAlertErrorLevel_Warning:
+            title = [self warningAlertTtile];
+            break;
+        case EXAlertErrorLevel_Error:
+            title = [self errorAlertTitle];
+            break;
+        case EXAlertErrorLevel_Fail:
+            title = [self failAlertTitle];
+            break;
+    }
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil
-            cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+            cancelButtonTitle:[self okButtonTitle] otherButtonTitles:nil];
     [alert show];
 }
 
-+ (void)fail:(NSError *)error
+#pragma mark - Private
+#pragma mark - Alert buttons titles
++ (NSString *)okButtonTitle
 {
-    NSString *title = NSLocalizedString(@"Fail", "Title for 'Fail' alert view.");
-    NSString *message = [error localizedDescription];
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:nil
-            cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-    [alert show];
+    return NSLocalizedString(@"Ok", @"'Ok' button title for alert view");
 }
+
++ (NSString *)cancelButtonTitle
+{
+    return NSLocalizedString(@"Cancel", @"'Cancel' button title for alert view");
+}
+
+#pragma mark - Alert titles
++ (NSString *)infoAlertTitle
+{
+    return NSLocalizedString(@"Info", "Title for 'Info' alert view.");
+}
+
++ (NSString *)warningAlertTtile
+{
+   return NSLocalizedString(@"Warning", "Title for 'Warning' alert view.");
+}
+
++ (NSString *)errorAlertTitle
+{
+    return NSLocalizedString(@"Error", "Title for 'Error' alert view.");
+}
+
++ (NSString *)failAlertTitle
+{
+    return NSLocalizedString(@"Fail", "Title for 'Fail' alert view.");
+}
+
+
 @end

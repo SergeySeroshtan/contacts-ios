@@ -8,22 +8,19 @@
 
 #import "EXAppDelegate.h"
 
-#import "EXContactsService.h"
 #import "EXMainStoryboard.h"
 
 @implementation EXAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-
-    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    self.window.rootViewController = [EXContactsService isUserSignedIn] ?
-            [storyboard instantiateViewControllerWithIdentifier:[EXMainStoryboard contactsNavigationControllerId]] :
-            [storyboard instantiateViewControllerWithIdentifier:[EXMainStoryboard loginViewControllerId]];
-
-    [self.window makeKeyAndVisible];
     return YES;
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application
+{
+    self.window.rootViewController = [self.window.rootViewController.storyboard
+            instantiateViewControllerWithIdentifier:[EXMainStoryboard addressBookDeniedViewControllerId]];
 }
 
 @end

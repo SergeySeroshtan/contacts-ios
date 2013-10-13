@@ -1,9 +1,41 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="mbS-6h-USq">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
     </dependencies>
     <scenes>
+        <!--Address Book Denied View Controller-->
+        <scene sceneID="OCU-X2-E2P">
+            <objects>
+                <viewController storyboardIdentifier="AddressBookDeniedViewControllerId" id="mbS-6h-USq" customClass="EXAddressBookDeniedViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="cQ6-Lb-5Ey"/>
+                        <viewControllerLayoutGuide type="bottom" id="lNY-pv-vOG"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="5kP-WC-xUo">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Address Book access is denied, please allow access to your address book in iOS Settings." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="gtp-0X-x7g">
+                                <rect key="frame" x="20" y="209" width="280" height="150"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                    </view>
+                    <connections>
+                        <outlet property="addressBookDeniedWarnLabel" destination="gtp-0X-x7g" id="uDW-f7-ud1"/>
+                        <segue destination="vXZ-lx-hvc" kind="modal" identifier="AddressBookDeniedToLoginViewControllerSegueId" animates="NO" id="jqH-F8-5uh"/>
+                        <segue destination="gme-Z7-r5k" kind="modal" identifier="AddressBookDeniedToContactsNavigationViewControllerSegueId" animates="NO" id="Tew-82-Om9"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="APa-Ls-cwi" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="542" y="133"/>
+        </scene>
         <!--Login View Controller - Start page-->
         <scene sceneID="ufC-wZ-h7g">
             <objects>
@@ -17,7 +49,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="bezel" placeholder="User name" minimumFontSize="14" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="6Ir-F6-h81">
-                                <rect key="frame" x="20" y="114" width="280" height="30"/>
+                                <rect key="frame" x="20" y="70" width="280" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="3UF-MJ-f8U"/>
@@ -29,7 +61,7 @@
                                 </connections>
                             </textField>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="bezel" placeholder="Password" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="Jqv-wm-jfr">
-                                <rect key="frame" x="20" y="152" width="280" height="30"/>
+                                <rect key="frame" x="20" y="108" width="280" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="YkO-Eg-u0E"/>
@@ -41,7 +73,7 @@
                                 </connections>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="m5n-wl-A63">
-                                <rect key="frame" x="20" y="190" width="280" height="30"/>
+                                <rect key="frame" x="20" y="146" width="280" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="snP-xb-nTs"/>
@@ -73,17 +105,17 @@
                     <connections>
                         <outlet property="userNameTextField" destination="6Ir-F6-h81" id="WUB-xA-b6R"/>
                         <outlet property="userPasswordTextField" destination="Jqv-wm-jfr" id="ctj-CP-h2F"/>
-                        <segue destination="gme-Z7-r5k" kind="modal" identifier="LoginToContactsSegueId" id="S8Z-eB-fsH"/>
+                        <segue destination="gme-Z7-r5k" kind="modal" identifier="LoginToContactsNavigationViewControllerSegueId" id="S8Z-eB-fsH"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="729" y="132"/>
+            <point key="canvasLocation" x="1136" y="824"/>
         </scene>
-        <!--Contacts Sync View Controller - Contacts-->
+        <!--Contacts View Controller - Contacts-->
         <scene sceneID="3sb-kj-cvN">
             <objects>
-                <viewController storyboardIdentifier="ContactsViewControllerId" id="BJt-4T-unr" customClass="EXContactsSyncViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ContactsViewControllerId" id="BJt-4T-unr" customClass="EXContactsViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Lgw-a9-PMs"/>
                         <viewControllerLayoutGuide type="bottom" id="Yat-Iy-i4D"/>
@@ -162,7 +194,7 @@
                         <outlet property="responseTextView" destination="o93-QY-YTa" id="98x-c4-12r"/>
                         <outlet property="syncContactsButton" destination="5YG-GZ-L6k" id="POg-cG-tCD"/>
                         <outlet property="userNameLabel" destination="S2a-mD-Mzz" id="R3B-Qz-K4E"/>
-                        <segue destination="vXZ-lx-hvc" kind="modal" identifier="ContactsToLoginSegueId" id="xAk-9P-V22"/>
+                        <segue destination="vXZ-lx-hvc" kind="modal" identifier="ContactsToLoginViewControllerSegueId" id="xAk-9P-V22"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="HQ3-jS-BdZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -193,4 +225,8 @@
         <simulatedOrientationMetrics key="orientation"/>
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
+    <inferredMetricsTieBreakers>
+        <segue reference="Tew-82-Om9"/>
+        <segue reference="jqH-F8-5uh"/>
+    </inferredMetricsTieBreakers>
 </document>

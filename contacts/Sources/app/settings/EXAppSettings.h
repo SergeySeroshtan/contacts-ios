@@ -13,6 +13,9 @@
  */
 @interface EXAppSettings : NSObject
 
+/// @name Info
++ (NSString *)appVersion;
+
 /// @name Root settings
 /// @name Network
 + (BOOL)loadPhotots;
@@ -33,4 +36,9 @@
 + (NSDate *)lastSyncDate;
 + (void)setLastSyncDate:(NSDate *)date;
 + (void)removeLastSyncDate;
+
++ (NSString *)contactsDatabaseVersion;
++ (void)setContactsDatabaseVersion:(NSString *)version;
++ (void)removeContactsDatabaseVersion;
+
 @end
