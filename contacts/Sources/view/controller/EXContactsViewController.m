@@ -16,16 +16,17 @@
 #import <FMDB/FMDatabase.h>
 #import <FMDB/FMResultSet.h>
 #import <FMDB/FMDatabaseAdditions.h>
+#import <AFNetworking/AFNetworking.h>
 
 #import "EXAlert.h"
 #import "EXAppSettings.h"
 #import "EXContactsService.h"
 #import "EXMainStoryboard.h"
 
-#define CF_RELEASE_SAFE(cfObj)\
-        if (cfObj) {\
-            CFRelease(cfObj);\
-            cfObj = NULL;\
+#define CF_SAFE_RELEASE(x)\
+        if (x) {\
+            CFRelease(x);\
+            x = NULL;\
         }
 
 #pragma mark - Address Book constants
@@ -41,23 +42,37 @@ static NSString * const kContactTableColumn_Version = @"version";
 static NSString * const kContactTableColumn_PhotoUrl = @"photoUrl";
 static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
 
+#pragma mark - Photos management configuration constatnts
+static const NSUInteger kPhotos_MaxConcurrentCount = 3;
+
 @interface EXContactsViewController () <UIActionSheetDelegate>
 
 @property (strong, nonatomic) NSDateFormatter *lastSyncDateFormatter;
 @property (strong, nonatomic) FMDatabase *contactsDb;
 
+// Queue for loading person photos
+@property (strong, nonatomic) NSOperationQueue *photosQueue;
+
 @end
 
 @implementation EXContactsViewController
+
+#pragma mark - Initialization
+- (void)makeInitialization
+{
+    self.lastSyncDateFormatter  = [[NSDateFormatter alloc] init];
+    [self.lastSyncDateFormatter setDateFormat:@"dd/MM/yyyy hh:mm:ss"];
+    self.contactsDb = [[FMDatabase alloc] initWithPath:[self getContactsDatabasePath]];
+
+    self.photosQueue = [[NSOperationQueue alloc] init];
+    [self.photosQueue setMaxConcurrentOperationCount:kPhotos_MaxConcurrentCount];
+}
 
 #pragma mark - UI lifecycle
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.lastSyncDateFormatter  = [[NSDateFormatter alloc] init];
-    [self.lastSyncDateFormatter setDateFormat:@"dd/MM/yyyy hh:mm:ss"];
-
-    self.contactsDb = [[FMDatabase alloc] initWithPath:[self getContactsDatabasePath]];
+    [self makeInitialization];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -79,7 +94,7 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
             NSLocalizedString(@"Remove", @"Remove account confirmation alert | Remove account button title");
 
     NSString *confirmationMessage =
-            NSLocalizedString(@"Removing account will also remove all contacts from your address book!",
+            NSLocalizedString(@"Removing account will also remove all related contacts from your address book!",
                     @"Remove account confirmation alert | Message");
 
     UIAlertView *confirmation = [UIAlertView SH_alertViewWithTitle:confirmationTitle
@@ -88,7 +103,7 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
             const NSInteger removeAccountButtonIndex = 1;
             if (buttonIndex == removeAccountButtonIndex) {
                 [self dropAddressBookRelatedPersons];
-                [self dropContactsDatabase];
+                [self dropContactTableFromDatabase];
                 [EXAppSettings removeLastSyncDate];
                 [EXAppSettings removeContactsDatabaseVersion];
                 [EXContactsService signOut];
@@ -119,17 +134,17 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
 
 - (IBAction)syncContacts:(id)sender {
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    hud.labelText = NSLocalizedString(@"Loading contacts", @"Hud title | Loading contacts");
+    hud.labelText = NSLocalizedString(@"Sync contacts", @"Hud title | Sync contacts");
     [EXContactsService
         coworkers:^(BOOL success, id data, NSError *error)
         {
             if (success) {
-                hud.labelText = NSLocalizedString(@"Updating contacts", @"Hud title | Updating contacts");
                 [self updateContacts:data];
                 [EXAppSettings setLastSyncDate:[NSDate date]];
                 [EXAppSettings setContactsDatabaseVersion:[EXAppSettings appVersion]];
                 [self updateUI];
                 [hud hide:YES];
+                [self startLoadingPhotos];
             } else {
                 [hud hide:YES];
                 [EXAlert showWithMessage:[error localizedDescription] errorLevel:EXAlertErrorLevel_Fail];
@@ -179,8 +194,7 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
             addressBook = ABAddressBookCreateWithOptions(NULL, &addressBookError);
             if (addressBookError) {
                 [self handleAddressBookError:addressBookError];
-                CFRelease(addressBookError);
-                addressBookError = NULL;
+                CF_SAFE_RELEASE(addressBookError);
                 return;
             }
         }
@@ -248,17 +262,11 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
             ABGroupAddMember(coworkersGroup, person, NULL);
             ABAddressBookSave(addressBook, NULL);
             [self updateContactsDatabseWithAddressBookPerson:person andContact:contact];
-            CFRelease(person);
+            CF_SAFE_RELEASE(person);
         }
     } @finally {
-        if (addressBook) {
-            CFRelease(addressBook);
-            addressBook = NULL;
-        }
-        if (coworkersGroup) {
-            CFRelease(coworkersGroup);
-            coworkersGroup = NULL;
-        }
+        CF_SAFE_RELEASE(addressBook);
+        CF_SAFE_RELEASE(coworkersGroup);
         [self.contactsDb close];
     }
 }
@@ -293,24 +301,10 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
     [EXAlert showWithMessage:errorMessage errorLevel:EXAlertErrorLevel_Error];
 }
 
-- (BOOL)replaceAddressBookOldPerson:(ABRecordRef)oldPerson withNewPerson:(ABRecordRef)newPerson
-{
-    return NO;
-}
-
 - (ABRecordRef)updateAddressBookPerson:(ABRecordRef)person withContact:(EXContact *)contact
 {
+    NSAssert(NO, @"This method is not implemented yet.");
     return NULL;
-}
-
-
-
-#pragma mark - Contacts database management
-- (NSString *)getContactsDatabasePath
-{
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *homeDir = ([paths count] > 0) ? paths[0] : nil;
-    return [homeDir stringByAppendingPathComponent:@"contacts.db"];
 }
 
 - (EXContact *)createContactFromAddressBookPerson:(ABRecordRef)person
@@ -328,14 +322,14 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
     if (ABMultiValueGetCount(emails) > 0) {
         contact.mail = CFBridgingRelease(ABMultiValueCopyValueAtIndex(emails, 0));
     }
-    CFRelease(emails);
+    CF_SAFE_RELEASE(emails);
     
     // Phone
     ABMultiValueRef phones = ABRecordCopyValue(person, kABPersonPhoneProperty);
     if (ABMultiValueGetCount(phones) > 0) {
         contact.phone = CFBridgingRelease(ABMultiValueCopyValueAtIndex(phones, 0));
     }
-    CFRelease(phones);
+    CF_SAFE_RELEASE(phones);
     
     // Skype
     ABMultiValueRef im = ABRecordCopyValue(person, kABPersonInstantMessageProperty);
@@ -348,7 +342,7 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
             break;
         }
     }
-    CFRelease(im);
+    CF_SAFE_RELEASE(im);
     
     // Position
     contact.position = CFBridgingRelease(ABRecordCopyValue(person, kABPersonJobTitleProperty));
@@ -358,9 +352,9 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
     if (ABMultiValueGetCount(addresses) > 0) {
         CFDictionaryRef firstAddress = ABMultiValueCopyValueAtIndex(addresses, 0);
         contact.location = (__bridge NSString *)CFDictionaryGetValue(firstAddress, kABPersonAddressCityKey);
-        CFRelease(firstAddress);
+        CF_SAFE_RELEASE(firstAddress);
     }
-    CFRelease(addresses);
+    CF_SAFE_RELEASE(addresses);
     
     return contact;
 }
@@ -379,12 +373,12 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
     ABMultiValueRef emails = ABMultiValueCreateMutable(kABMultiStringPropertyType);
     ABMultiValueAddValueAndLabel(emails, (__bridge CFStringRef)contact.mail, NULL, NULL);
     ABRecordSetValue(person, kABPersonEmailProperty, emails, &error);
-    CFRelease(emails);
+    CF_SAFE_RELEASE(emails);
     // Phone
     ABMultiValueRef phones = ABMultiValueCreateMutable(kABMultiStringPropertyType);
     ABMultiValueAddValueAndLabel(phones, (__bridge CFStringRef)contact.phone, kABPersonPhoneMobileLabel, NULL);
     ABRecordSetValue(person, kABPersonPhoneProperty, phones, &error);
-    CFRelease(phones);
+    CF_SAFE_RELEASE(phones);
     // Skype
     CFMutableDictionaryRef skype = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 2, NULL, NULL);
     CFDictionaryAddValue(skype, kABPersonInstantMessageServiceKey, kABPersonInstantMessageServiceSkype);
@@ -393,8 +387,8 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
     ABMultiValueRef im = ABMultiValueCreateMutable(kABMultiDictionaryPropertyType);
     ABMultiValueAddValueAndLabel(im, skype, NULL, NULL);
     ABRecordSetValue(person, kABPersonInstantMessageProperty, im, &error);
-    CFRelease(skype);
-    CFRelease(im);
+    CF_SAFE_RELEASE(skype);
+    CF_SAFE_RELEASE(im);
     // Position (Job Title)
     ABRecordSetValue(person, kABPersonJobTitleProperty, (__bridge CFStringRef)contact.position, &error);
     // Location
@@ -409,35 +403,32 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
     return person;
 }
 
-- (BOOL)updateContactsDatabseWithAddressBookPerson:(ABRecordRef)person andContact:(EXContact *)contact
+- (void)updateAddressBookPersonPhoto:(NSData *)photo loadedFromUrl:(NSString *)url
 {
-    PRECONDITION_ARG_NOT_NIL(person);
-    PRECONDITION_ARG_NOT_NIL(contact);
-    NSNumber *personId = [NSNumber numberWithInteger:ABRecordGetRecordID(person)];
-    
-    NSMutableString *insertQuery = [NSMutableString stringWithFormat:@"INSERT INTO %@", kContactTableName];
-    [insertQuery appendFormat:@" (%@, %@, %@, %@)",
-            kContactTableColumn_PersonId, kContactTableColumn_Uid, kContactTableColumn_Version,
-            kContactTableColumn_PhotoUrl];
-    [insertQuery appendFormat:@" VALUES (?, ?, ?, ?)"];
-    
-    return [self.contactsDb executeUpdate:insertQuery, personId, contact.uid, contact.version, contact.photoUrl];
-}
+    PRECONDITION_ARG_NOT_NIL(photo);
+    PRECONDITION_ARG_NOT_NIL(url);
 
-- (void)addUtilInformationForPerson:(ABRecordRef)person toContact:(EXContact *)contact fromDatabase:(FMDatabase *)db
-{
-    PRECONDITION_ARG_NOT_NIL(person);
-    PRECONDITION_ARG_NOT_NIL(db);
+    ABRecordID personId = [self retreivePersonIdWithPhotoUrl:url];
 
-    NSNumber *recordId = [NSNumber numberWithInteger:ABRecordGetRecordID(person)];
-    NSString *contactQuery = [NSString stringWithFormat:@"SELECT * FROM %@ WHERE %@ = ?",
-            kContactTableName, kContactTableColumn_PersonId];
-    FMResultSet *dbResult = [db executeQuery:contactQuery, recordId];
-    if ([dbResult next]) {
-        contact.uid = [dbResult stringForColumn:kContactTableColumn_Uid];
-        contact.version = [dbResult stringForColumn:kContactTableColumn_Version];
-        contact.photoUrl = [dbResult stringForColumn:kContactTableColumn_PhotoUrl];
+    CFErrorRef addressBookError = NULL;
+    ABAddressBookRef addressBook = NULL;
+
+    @try {
+        // 1. Get access to address book
+        ABAddressBookRef addressBook = ABAddressBookCreateWithOptions(NULL, &addressBookError);
+        if (addressBookError) {
+            return;
+        }
+        ABRecordRef person = ABAddressBookGetPersonWithRecordID(addressBook, personId);
+        ABPersonSetImageData(person, (__bridge CFDataRef)photo, NULL);
+        ABAddressBookSave(addressBook, NULL);
+
+        [self updateContactsDatabseWithSyncedPhotoUrl:url];
+    } @finally {
+        CF_SAFE_RELEASE(addressBook);
+        CF_SAFE_RELEASE(addressBookError);
     }
+
 }
 
 - (void)dropAddressBookRelatedPersons
@@ -476,13 +467,110 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
             ABAddressBookSave(addressBook, NULL);
         }
     } @finally {
-        CF_RELEASE_SAFE(addressBook);
-        CF_RELEASE_SAFE(addressBookError);
-        CF_RELEASE_SAFE(coworkersGroup);
+        CF_SAFE_RELEASE(addressBook);
+        CF_SAFE_RELEASE(addressBookError);
+        CF_SAFE_RELEASE(coworkersGroup);
     }
 }
 
-- (void)dropContactsDatabase
+#pragma mark - Contacts database management
+- (NSString *)getContactsDatabasePath
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *homeDir = ([paths count] > 0) ? paths[0] : nil;
+    return [homeDir stringByAppendingPathComponent:@"contacts.db"];
+}
+
+
+- (BOOL)updateContactsDatabseWithAddressBookPerson:(ABRecordRef)person andContact:(EXContact *)contact
+{
+    PRECONDITION_ARG_NOT_NIL(person);
+    PRECONDITION_ARG_NOT_NIL(contact);
+    NSNumber *personId = [NSNumber numberWithInteger:ABRecordGetRecordID(person)];
+    
+    NSMutableString *insertQuery = [NSMutableString stringWithFormat:@"INSERT INTO %@", kContactTableName];
+    [insertQuery appendFormat:@" (%@, %@, %@, %@)",
+            kContactTableColumn_PersonId, kContactTableColumn_Uid, kContactTableColumn_Version,
+            kContactTableColumn_PhotoUrl];
+    [insertQuery appendFormat:@" VALUES (?, ?, ?, ?)"];
+    
+    return [self.contactsDb executeUpdate:insertQuery, personId, contact.uid, contact.version, contact.photoUrl];
+}
+
+- (void)addUtilInformationForPerson:(ABRecordRef)person toContact:(EXContact *)contact fromDatabase:(FMDatabase *)db
+{
+    PRECONDITION_ARG_NOT_NIL(person);
+    PRECONDITION_ARG_NOT_NIL(db);
+
+    NSNumber *recordId = [NSNumber numberWithInteger:ABRecordGetRecordID(person)];
+    NSString *contactQuery = [NSString stringWithFormat:@"SELECT * FROM %@ WHERE %@ = ?",
+            kContactTableName, kContactTableColumn_PersonId];
+    FMResultSet *dbResult = [db executeQuery:contactQuery, recordId];
+    if ([dbResult next]) {
+        contact.uid = [dbResult stringForColumn:kContactTableColumn_Uid];
+        contact.version = [dbResult stringForColumn:kContactTableColumn_Version];
+        contact.photoUrl = [dbResult stringForColumn:kContactTableColumn_PhotoUrl];
+    }
+}
+
+- (NSArray *)retreiveUnsyncedPhotos
+{
+    if (![self.contactsDb open]) {
+        return nil;
+    }
+
+    NSString *photosQuery = [NSString stringWithFormat:@"SELECT %@ FROM %@ WHERE %@ = 0", kContactTableColumn_PhotoUrl,
+            kContactTableName, kContactTableColumn_PhotoSynced];
+
+    NSMutableArray *result = [NSMutableArray array];
+    FMResultSet *resultSet = [self.contactsDb executeQuery:photosQuery];
+    while ([resultSet next]) {
+        NSString *photoUrl = [resultSet stringForColumn:kContactTableColumn_PhotoUrl];
+        if ([photoUrl exist]) {
+            [result addObject:photoUrl];
+        }
+    }
+
+    [self.contactsDb close];
+    return result;
+}
+
+- (ABRecordID)retreivePersonIdWithPhotoUrl:(NSString *)photoUrl
+{
+    if(![self.contactsDb open]) {
+        return -1;
+    }
+    @try {
+        NSString *getQuery = [NSString stringWithFormat:@"SELECT %@ FROM %@ WHERE %@ = ?",
+                kContactTableColumn_PersonId, kContactTableName, kContactTableColumn_PhotoUrl];
+
+        FMResultSet *resultSet = [self.contactsDb executeQuery:getQuery, photoUrl];
+        if ([resultSet next]) {
+            return [resultSet intForColumn:kContactTableColumn_PersonId];
+        } else {
+            return -1;
+        }
+    } @finally {
+        [self.contactsDb close];
+    }
+}
+
+- (BOOL)updateContactsDatabseWithSyncedPhotoUrl:(NSString *)photoUrl
+{
+    if(![self.contactsDb open]) {
+        return NO;
+    }
+    @try {
+        NSString *updateQuery = [NSString stringWithFormat:@"UPDATE %@ SET %@ = 1 WHERE %@ = ?",
+                kContactTableName, kContactTableColumn_PhotoSynced, kContactTableColumn_PhotoUrl];
+
+        return [self.contactsDb executeUpdate:updateQuery, photoUrl];
+    } @finally {
+        [self.contactsDb close];
+    }
+}
+
+- (void)dropContactTableFromDatabase
 {
     if(![self.contactsDb open]) {
         return;
@@ -494,6 +582,51 @@ static NSString * const kContactTableColumn_PhotoSynced = @"photoSynced";
     }
     
     [self.contactsDb close];
+}
+
+#pragma mark - Photos managing
+- (void)startLoadingPhotos
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pauseLoadingPhotos)
+            name:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumeLoadingPhotos)
+            name:UIApplicationDidBecomeActiveNotification object:nil];
+
+    AFHTTPClient *httpClient = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:@"init"]];
+    [httpClient registerHTTPOperationClass:[AFHTTPRequestOperation class]];
+
+    NSArray *photosUrl = [self retreiveUnsyncedPhotos];
+    for (NSString * urlString in photosUrl) {
+        if (![urlString exist]) {
+            continue;
+        }
+
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSURLRequest *request = [NSURLRequest requestWithURL:url];
+        AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+        [operation
+            setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+                [self updateAddressBookPersonPhoto:responseObject loadedFromUrl:operation.request.URL.absoluteString];
+                [self updateContactsDatabseWithSyncedPhotoUrl:operation.request.URL.absoluteString];
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                // Ignore
+                NSLog(@"Failed HTTP request: %@, due to error %@", operation.request, error);
+            }
+        ];
+
+        [self.photosQueue addOperation:operation];
+    }
+
+}
+
+- (void)pauseLoadingPhotos
+{
+    [self.photosQueue setSuspended:YES];
+}
+
+- (void)resumeLoadingPhotos
+{
+    [self.photosQueue setSuspended:NO];
 }
 
 @end
