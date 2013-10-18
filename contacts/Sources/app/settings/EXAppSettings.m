@@ -88,17 +88,17 @@ static NSString * const kRootSettingsKey_ContactsDatabaseVersion = @"ContactsDat
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRootSettingsKey_LastSyncDate];
 }
 
-+ (NSString *)contactsDatabaseVersion
++ (NSString *)contactsStorgaeVersion
 {
     return [[NSUserDefaults standardUserDefaults] objectForKey:kRootSettingsKey_ContactsDatabaseVersion];
 }
 
-+ (void)setContactsDatabaseVersion:(NSString *)version
++ (void)setContactsStorageVersion:(NSString *)version
 {
     [[NSUserDefaults standardUserDefaults] setObject:version forKey:kRootSettingsKey_ContactsDatabaseVersion];
 }
 
-+ (void)removeContactsDatabaseVersion
++ (void)removeContactsStorageVersion
 {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRootSettingsKey_ContactsDatabaseVersion];
 }

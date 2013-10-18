@@ -8,9 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@class RHAddressBook;
+#import "EXContactsStorageConsumer.h"
 
-@interface EXContactsViewController : UIViewController
+@interface EXContactsViewController : UIViewController<EXContactsStorageConsumer>
+
+/// @name Configuration
+@property (strong, nonatomic) EXContactsStorage *contactsStorage;
 
 /// @name UI outlets
 @property (weak, nonatomic) IBOutlet UILabel *userNameLabel;

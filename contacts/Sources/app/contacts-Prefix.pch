@@ -26,8 +26,35 @@
 #endif
 
 #define PRECONDITION_ARG_NOT_NIL(argument)\
-    if (argument == nil) {\
+    if ((argument) == nil) {\
         NSString *reason = [NSString stringWithFormat:@"[%@ %@] -> argument: "#argument" is not specified.",\
                 NSStringFromClass(self.class), NSStringFromSelector(_cmd)];\
         @throw [NSException exceptionWithName:NSInvalidArgumentException reason:reason userInfo:nil];\
+    }
+
+#define PRECONDITION_TRUE(condition)\
+    if (!(condition)) {\
+        NSString *reason = [NSString stringWithFormat:@"[%@ %@] -> condition: "#condition" failed.",\
+                NSStringFromClass(self.class), NSStringFromSelector(_cmd)];\
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:reason userInfo:nil];\
+    }
+
+#define CF_SAFE_RELEASE(x)\
+    if (x) {\
+        CFRelease(x);\
+        x = NULL;\
+    }
+#define BREAK_IF_FALSE(condition)\
+    if (!(condition)) {\
+        break;\
+    }
+
+#define RETURN_IF_FALSE(condition)\
+    if (!(condition)) {\
+        return;\
+    }
+
+#define RETURN_VALUE_IF_FALSE(condition, value)\
+    if (!(condition)) {\
+        return value;\
     }

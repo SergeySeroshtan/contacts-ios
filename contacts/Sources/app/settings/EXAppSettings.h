@@ -37,8 +37,8 @@
 + (void)setLastSyncDate:(NSDate *)date;
 + (void)removeLastSyncDate;
 
-+ (NSString *)contactsDatabaseVersion;
-+ (void)setContactsDatabaseVersion:(NSString *)version;
-+ (void)removeContactsDatabaseVersion;
++ (NSString *)contactsStorgaeVersion;
++ (void)setContactsStorageVersion:(NSString *)version;
++ (void)removeContactsStorageVersion;
 
 @end

@@ -24,9 +24,34 @@
 #pragma mark - UI lifecycle
 - (void)viewWillAppear:(BOOL)animated
 {
+    PRECONDITION_TRUE(self.contactsStorage != nil);
     [super viewWillAppear:animated];
+
     self.userNameTextField.text = @"";
     self.userPasswordTextField.text = @"";
+}
+
+#pragma mark - Segue handling
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    id<EXContactsStorageConsumer> contactsStorageConsumer = nil;
+    if ([segue.destinationViewController conformsToProtocol:@protocol(EXContactsStorageConsumer)]) {
+        contactsStorageConsumer = segue.destinationViewController;
+    } else {
+        if ([segue.destinationViewController isKindOfClass:[UINavigationController class]]) {
+            UINavigationController *navigationController = (UINavigationController *)segue.destinationViewController;
+            UIViewController *visibleViewController = [navigationController.viewControllers lastObject];
+            if ([visibleViewController conformsToProtocol:@protocol(EXContactsStorageConsumer)]) {
+                contactsStorageConsumer = (id<EXContactsStorageConsumer>)visibleViewController;
+            }
+        }
+    }
+    if (contactsStorageConsumer) {
+        [contactsStorageConsumer setContactsStorage:self.contactsStorage];
+    } else {
+        NSLog(@"Warning: Destination view controller does not implement %@ protocol!",
+                NSStringFromProtocol(@protocol(EXContactsStorageConsumer)));
+    }
 }
 
 #pragma mark - UI actions

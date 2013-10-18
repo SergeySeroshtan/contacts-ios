@@ -8,7 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@interface EXLoginViewController : UIViewController
+#import "EXContactsStorageConsumer.h"
+
+@interface EXLoginViewController : UIViewController<EXContactsStorageConsumer>
+
+/// @name Configuration
+@property (strong, nonatomic) EXContactsStorage *contactsStorage;
 
 /// @name UI outlets
 @property (weak, nonatomic) IBOutlet UITextField *userNameTextField;
