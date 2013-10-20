@@ -10,7 +10,6 @@
 
 #import <AFNetworking/AFNetworking.h>
 
-#import "EXAppSettings.h"
 #import "EXContactsService.h"
 #import "EXContactsStorage.h"
 
@@ -25,11 +24,18 @@ typedef enum {
     EXContactsSyncerState_NotAccessible
 } EXContactsSyncerState;
 
-#pragma mark - User defaults constants
+#pragma mark - Configuration constatnts
+static const NSUInteger kPhotos_MaxConcurrentCount = 3;
+
+#pragma mark - Sync queue state observe constants
+static NSString * const kPhotosSyncQueueObserveContext = @"PhotosSyncQueueObserveContext";
+static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operationCount";
 
 @interface EXContactsSyncer ()
 
-@property (assign, nonatomic) EXContactsSyncerState internalState;
+@property (assign) BOOL syncContacts;
+@property (assign) BOOL syncPhotos;
+
 @property (strong, nonatomic) EXContactsStorage *contactsStorage;
 @property (strong, nonatomic) EXContactsService *contactsService;
 @property (strong, nonatomic) NSMutableSet *syncObservers;
@@ -58,11 +64,20 @@ typedef enum {
 - (instancetype)initPrivate
 {
     if (self = [super init]) {
-        self.internalState = EXContactsSyncerState_Stopped;
+        self.syncContacts = NO;
+        self.syncPhotos = NO;
         self.contactsService = [[EXContactsService alloc] init];
         self.contactsStorage = [[EXContactsStorage alloc] init];
         self.syncObservers = [[NSMutableSet alloc] init];
+        
         self.httpClient = [[AFHTTPClient alloc] initWithBaseURL:[NSURL URLWithString:kContactsServiceUrl]];
+        [self.httpClient registerHTTPOperationClass:[AFHTTPRequestOperation class]];
+        
+        self.photosSyncQueue = [[NSOperationQueue alloc] init];
+        self.photosSyncQueue.maxConcurrentOperationCount = kPhotos_MaxConcurrentCount;
+        
+        [self.photosSyncQueue addObserver:self forKeyPath:kPhotosSyncQueueObserveValue_OperationCount
+                options:NSKeyValueObservingOptionNew context:(__bridge void *)kPhotosSyncQueueObserveContext];
         
         [self addObserver:self forKeyPath:@"internalState" options:NSKeyValueObservingOptionNew context:nil];
     }
@@ -93,7 +108,7 @@ typedef enum {
     PRECONDITION_ARG_NOT_NIL(completion);
     [self.contactsService signInUser:username password:password completion:^(BOOL success, id data, NSError *error) {
         if (success) {
-            [self start];
+            [self awake];
         }
         completion(success, error);
     }];
@@ -116,53 +131,149 @@ typedef enum {
 }
 
 #pragma mark - Sync managing
-- (void)start
+- (void)syncNow
 {
-    if (!self.isAccessible || self.internalState == EXContactsSyncerState_Started ||
-            self.internalState == EXContactsSyncerState_Resumed) {
+    if (self.syncContacts) {
         return;
     }
-    self.internalState = EXContactsSyncerState_Started;
-    [self resume];
+    [self processSync];
 }
 
-- (void)stop
+- (void)resyncPhotos
 {
-    self.internalState = EXContactsSyncerState_Stopped;
-}
-
-- (void)suspend
-{
-
-}
-
-- (void)resume
-{
-    if (!self.isAccessible || self.internalState == EXContactsSyncerState_Resumed) {
-        return;
+    if (self.syncPhotos) {
+        [self stopPhotosSync];
     }
-    
-    // Sync contacts if needed
-    [self fireWillStartContactsSync];
+    [self.contactsStorage invalidateAllPhotos];
+    [self startPhotosSync];
+}
+
+- (void)awake
+{
+    if (self.syncPhotos) {
+        [self resumeSyncPhotos];
+    } else if ([self needSync]) {
+        [self processSync];
+    }
+}
+
+- (void)sleep
+{
+    if (self.syncPhotos) {
+        [self suspendSyncPhotos];
+    }
+}
+
+- (BOOL)needSync
+{
+    return YES;
+}
+
+- (void)processSync
+{
+    if (self.syncPhotos) {
+        [self stopPhotosSync];
+    }
+    self.syncContacts = YES;
     [self fireDidStartContactsSync];
     [self.contactsService coworkers:^(BOOL success, id data, NSError *error) {
-        self.internalState = EXContactsSyncerState_Stopped;
         if (success) {
-            [self.contactsStorage syncContacts:data];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.contactsStorage syncContacts:data];
+            });
             [self fireDidFinishContactsSync];
+            [self startPhotosSync];
         } else {
             [self fireDidFailContactsSyncWithError:error];
         }
+        self.syncContacts = NO;
     }];
-    
-    self.internalState = EXContactsSyncerState_Resumed;
 }
 
-#pragma mark - Sync state
+- (void)startPhotosSync
+{
+    if (self.syncPhotos) {
+        return;
+    } else if (!self.photosLoadingEnabled) {
+        return;
+    }
+    
+    NSArray *photosUrl = [self.contactsStorage retreiveUnsyncedPhotosUrl];
+    const NSUInteger totalSyncPhotosCount = photosUrl.count;
+    if (totalSyncPhotosCount == 0) {
+        return;
+    }
+
+    [self.photosSyncQueue setSuspended:YES];
+    for (NSString * urlString in photosUrl) {
+        if (![urlString exist]) {
+            continue;
+        }
+
+        NSURL *url = [NSURL URLWithString:urlString];
+        NSURLRequest *request = [NSURLRequest requestWithURL:url];
+        AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+        [operation
+            setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+                [self processLoadedPhoto:responseObject fromUrl:operation.request.URL.absoluteString
+                        ofTotalCount:totalSyncPhotosCount];
+            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                // Ignore
+                NSLog(@"Failed HTTP request: %@, due to error %@", operation.request, error);
+            }
+        ];
+
+        [self.photosSyncQueue addOperation:operation];
+    }
+    self.syncPhotos = YES;
+    [self fireDidStartPhotosSync:totalSyncPhotosCount];
+    [self.photosSyncQueue setSuspended:NO];
+}
+
+- (void)stopPhotosSync
+{
+    if (!self.syncPhotos) {
+        return;
+    }
+    [self.photosSyncQueue cancelAllOperations];
+    [self fireDidFinishPhotosSync];
+    self.syncPhotos = NO;
+}
+
+- (void)resumeSyncPhotos
+{
+    if (!self.syncPhotos) {
+        return;
+    } else if (!self.photosLoadingEnabled) {
+        [self stopPhotosSync];
+        return;
+    }
+    [self.photosSyncQueue setSuspended:NO];
+}
+
+- (void)suspendSyncPhotos
+{
+    if (!self.syncPhotos) {
+        return;
+    }
+    [self.photosSyncQueue setSuspended:YES];
+}
+
+- (void)processLoadedPhoto:(NSData *)photo fromUrl:(NSString *)url ofTotalCount:(NSUInteger)totalSyncPhotoCount
+{
+    PRECONDITION_ARG_NOT_NIL(photo);
+    PRECONDITION_ARG_NOT_NIL(url);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.contactsStorage syncPhoto:photo withUrl:url];
+    });
+    NSUInteger syncedPhotosCount = totalSyncPhotoCount - self.photosSyncQueue.operationCount;
+    [self fireDidSyncPhotos:syncedPhotosCount ofTotal:totalSyncPhotoCount];
+}
+
+#pragma mark - Accessible state
 - (BOOL)isAccessible
 {
-    [self updateInternalState];
-    return self.internalState != EXContactsSyncerState_NotAccessible;
+    return self.contactsService.isUserSignedIn && self.contactsStorage.isAccessible;
 }
 
 /// @name Sync observing
@@ -187,48 +298,21 @@ typedef enum {
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change
         context:(void *)context
 {
-    NSNumber *newState = [change objectForKey:NSKeyValueChangeNewKey];
-    [self logInternalStateChanged:newState.intValue];
+    if (context == (__bridge void *)kPhotosSyncQueueObserveContext &&
+            [keyPath isEqualToString:kPhotosSyncQueueObserveValue_OperationCount]) {
+        NSNumber *operationCount = [change objectForKey:NSKeyValueChangeNewKey];
+        if (self.syncPhotos) {
+            if (operationCount.intValue == 0) {
+                [self stopPhotosSync];
+            }
+        }
+    }
 }
+
+#pragma mark - 
 
 #pragma mark - Private
-#pragma mark - Sync state
-- (void)updateInternalState
-{
-    BOOL accessible = YES;
-    if (!self.contactsStorage.isAccessible) {
-        accessible = NO;
-    } else {
-//        switch (self.networkStatus) {
-//            case ReachableViaWiFi:
-//                break;
-//            case ReachableViaWWAN:
-//                accessible = self.mobileNetworksEnabled;
-//                break;
-//            case NotReachable:
-//            default:
-//                accessible = NO;
-//                break;
-//        }
-    }
-    if (!accessible) {
-        self.internalState = EXContactsSyncerState_NotAccessible;
-    }
-}
-
 #pragma mark - Sync observer notification
-- (void)fireWillStartContactsSync
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        for (id<EXContactSyncObserver> observer in self.syncObservers) {
-            if (![observer respondsToSelector:@selector(contactsSyncerWillStartContactsSync:)]) {
-                continue;
-            }
-            [observer contactsSyncerWillStartContactsSync:self];
-        }
-    });
-}
-
 - (void)fireDidStartContactsSync
 {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -265,18 +349,6 @@ typedef enum {
     });
 }
 
-- (void)fireWillStartPhotosSync:(NSUInteger)photosCount;
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        for (id<EXContactSyncObserver> observer in self.syncObservers) {
-            if (![observer respondsToSelector:@selector(contactsSyncer:willStartPhotosSync:)]) {
-                continue;
-            }
-            [observer contactsSyncer:self willStartPhotosSync:photosCount];
-        }
-    });
-}
-
 - (void)fireDidStartPhotosSync:(NSUInteger)photosCount
 {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -301,7 +373,7 @@ typedef enum {
     });
 }
 
-- (void)fireDidFinishPhotosSync:(EXContactsSyncer *)contactsSyncer
+- (void)fireDidFinishPhotosSync
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         for (id<EXContactSyncObserver> observer in self.syncObservers) {

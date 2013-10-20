@@ -54,12 +54,6 @@
     [self updateUI];
 }
 
-//- (void)viewWillDisappear:(BOOL)animated
-//{
-//    [super viewWillDisappear:animated];
-//    [[EXContactsSyncer sharedInstance] removeSyncObserver:self];
-//}
-
 #pragma mark - UI actions
 - (void)removeAccount
 {
@@ -83,7 +77,7 @@
 
 - (void)forcePhotosSync
 {
-    PRECONDITION_TRUE(NO);
+    [[EXContactsSyncer sharedInstance] resyncPhotos];
 }
 
 - (IBAction)editAccount:(id)sender {
@@ -109,19 +103,20 @@
 }
 
 - (IBAction)syncNow:(id)sender {
-    [[EXContactsSyncer sharedInstance] start];
+    [[EXContactsSyncer sharedInstance] syncNow];
 }
 
 #pragma mark - EXContactsSyncObserver
-- (void)contactsSyncerWillStartContactsSync:(EXContactsSyncer *)contactsSyncer
+- (void)contactsSyncerDidStartContactsSync:(EXContactsSyncer *)contactsSyncer
 {
     MBProgressHUD *syncHud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    syncHud.labelText = @"Sync";
+    syncHud.labelText = @"Sync contacts";
 }
 
 - (void)contactsSyncerDidFinishContactsSync:(EXContactsSyncer *)contactsSyncer
 {
     [MBProgressHUD hideHUDForView:self.view animated:YES];
+    [self updateUI];
 }
 
 - (void)contactsSyncerDidFailPhotosSync:(EXContactsSyncer *)contactsSyncer withError:(NSError *)error
@@ -130,7 +125,7 @@
     [EXAlert showWithMessage:[error localizedDescription] errorLevel:EXAlertErrorLevel_Fail];
 }
 
-- (void)contactsSyncer:(EXContactsSyncer *)contactsSyncer willStartPhotosSync:(NSUInteger)photosCount
+- (void)contactsSyncer:(EXContactsSyncer *)contactsSyncer didStartPhotosSync:(NSUInteger)photosCount
 {
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
     hud.labelText = [NSString stringWithFormat:@"Sync photos (0 / %u)", photosCount];
@@ -145,6 +140,7 @@
 
 - (void)contactsSyncerDidFinishPhotosSync:(EXContactsSyncer *)contactsSyncer
 {
+    NSLog(@"Is main thread %d", [NSThread isMainThread]);
     [MBProgressHUD hideHUDForView:self.view animated:YES];
 }
 

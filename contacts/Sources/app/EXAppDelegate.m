@@ -23,14 +23,14 @@
     return YES;
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
+- (void)applicationDidBecomeActive:(UIApplication *)application
 {
     EXContactsSyncer *contactsSyncer = [EXContactsSyncer sharedInstance];
     contactsSyncer.photosLoadingEnabled = [EXAppSettings loadPhotots];
     contactsSyncer.mobileNetworksEnabled = [EXAppSettings useMobileNetworks];
     contactsSyncer.localNotificationEnabled = [EXAppSettings useLocalNotifications];
     contactsSyncer.groupName = [EXAppSettings coworkersGroupName];
-    [contactsSyncer resume];
+    [contactsSyncer awake];
     
     self.window.rootViewController = [self.window.rootViewController.storyboard
             instantiateViewControllerWithIdentifier:[EXMainStoryboard addressBookDeniedViewControllerId]];
@@ -38,7 +38,7 @@
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    [[EXContactsSyncer sharedInstance] suspend];
+    [[EXContactsSyncer sharedInstance] sleep];
 }
 
 

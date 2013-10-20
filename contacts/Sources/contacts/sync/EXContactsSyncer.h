@@ -66,10 +66,10 @@ typedef void(^EXContactsSyncerCompletion)(BOOL success, NSError *error);
 - (EXContact *)signedUserContact;
 
 /// @name Sync managing
-- (void)start;
-- (void)stop;
-- (void)suspend;
-- (void)resume;
+- (void)syncNow;
+- (void)resyncPhotos;
+- (void)awake;
+- (void)sleep;
 
 /// @name Sync state
 /**
@@ -88,13 +88,11 @@ typedef void(^EXContactsSyncerCompletion)(BOOL success, NSError *error);
 @optional
 
 /// @name Contacts sync
-- (void)contactsSyncerWillStartContactsSync:(EXContactsSyncer *)contactsSyncer;
 - (void)contactsSyncerDidStartContactsSync:(EXContactsSyncer *)contactsSyncer;
 - (void)contactsSyncerDidFinishContactsSync:(EXContactsSyncer *)contactsSyncer;
 - (void)contactsSyncerDidFailContactsSync:(EXContactsSyncer *)contactsSyncer withError:(NSError *)error;
 
 /// @name Photos sync
-- (void)contactsSyncer:(EXContactsSyncer *)contactsSyncer willStartPhotosSync:(NSUInteger)photosCount;
 - (void)contactsSyncer:(EXContactsSyncer *)contactsSyncer didStartPhotosSync:(NSUInteger)photosCount;
 - (void)contactsSyncer:(EXContactsSyncer *)contactsSyncer didSyncPhotos:(NSUInteger)syncedPhotosCount
         ofTotal:(NSUInteger)totalPhotosCount;
