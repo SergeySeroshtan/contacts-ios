@@ -8,7 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "EXContact.h"
+@class EXContact;
+
+// Service base URL.
+extern NSString * const kContactsServiceUrl;
 
 /// @name Errors description
 extern NSString * const EXContactsServiceErrorDomain;
@@ -30,33 +33,33 @@ typedef void(^EXContactsServiceCompletion)(BOOL success, id data, NSError *error
 /**
  * Authenticate user in the service.
  */
-+ (void)signInUser:(NSString *)name password:(NSString *)password completion:(EXContactsServiceCompletion)completion;
+- (void)signInUser:(NSString *)name password:(NSString *)password completion:(EXContactsServiceCompletion)completion;
 /**
  * Remove user authentication info.
  */
-+ (void)signOut;
+- (void)signOut;
 
 /// @name Authentication info
 /**
  * @return YES if user is signed in, NO - otherwise.
  */
-+ (BOOL)isUserSignedIn;
+- (BOOL)isUserSignedIn;
 /**
- * @return user name if user is signed in, nil - otherwise.
+ * Contains valid user contact (EXContact) if user is signed in, nil - otherwise.
  */
-+ (NSString *)signedUserName;
+@property (strong, nonatomic, readonly) EXContact *signedUserContact;
 
 /// @name Service API
 /**
  * Provide contact information about signed in user.
  * @return EXContact object in 'id' parameter of the 'completion' block, if success.
  */
-+ (void)myContact:(EXContactsServiceCompletion)completion;
+- (void)myContact:(EXContactsServiceCompletion)completion;
 
 /**
  * Provide contact information about coworkers of signed in user.
  * @return array of EXContact objects in 'id' parameter of the 'completion' block, if success.
  */
-+ (void)coworkers:(EXContactsServiceCompletion)completion;
+- (void)coworkers:(EXContactsServiceCompletion)completion;
 
 @end

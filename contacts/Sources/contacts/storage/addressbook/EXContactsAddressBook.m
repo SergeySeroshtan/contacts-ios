@@ -34,12 +34,9 @@ static NSString * const kContactsGroupName = @"coworkers";
 #pragma mark - Initialize
 - (id)init
 {
-    if ((self = [super init]) == nil) {
-        return nil;
+    if (self = [super init]) {
+        [self tryAddressBookLasyInit];
     }
-
-    [self tryAddressBookLasyInit];
-
     return self;
 }
 
@@ -277,6 +274,25 @@ static NSString * const kContactsGroupName = @"coworkers";
     CF_SAFE_RELEASE(self.coworkersGroup);
     ABAddressBookSave(self.addressBook, NULL);
     return YES;
+}
+
+#pragma mark - Photos managing
+- (void)setPhoto:(NSData *)photo forPerson:(NSUInteger)personId
+{
+    ABRecordRef person = ABAddressBookGetPersonWithRecordID(self.addressBook , personId);
+    if (person == NULL) {
+        return;
+    }
+    
+    EXABPersonAttribute *personAttribute = [[EXABPersonAttribute alloc] initWithABPerson:person];
+    personAttribute.photo = photo;
+    
+    ABAddressBookSave(self.addressBook, NULL);
+}
+
+- (void)removePhotoForPerson:(NSUInteger)personId
+{
+    [self setPhoto:nil forPerson:personId];
 }
 
 #pragma mark - Private

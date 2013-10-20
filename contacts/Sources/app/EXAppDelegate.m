@@ -8,7 +8,13 @@
 
 #import "EXAppDelegate.h"
 
+#import "EXAppSettings.h"
 #import "EXMainStoryboard.h"
+#import "EXContactsSyncer.h"
+
+@interface EXAppDelegate ()
+
+@end
 
 @implementation EXAppDelegate
 
@@ -19,8 +25,21 @@
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+    EXContactsSyncer *contactsSyncer = [EXContactsSyncer sharedInstance];
+    contactsSyncer.photosLoadingEnabled = [EXAppSettings loadPhotots];
+    contactsSyncer.mobileNetworksEnabled = [EXAppSettings useMobileNetworks];
+    contactsSyncer.localNotificationEnabled = [EXAppSettings useLocalNotifications];
+    contactsSyncer.groupName = [EXAppSettings coworkersGroupName];
+    [contactsSyncer resume];
+    
     self.window.rootViewController = [self.window.rootViewController.storyboard
             instantiateViewControllerWithIdentifier:[EXMainStoryboard addressBookDeniedViewControllerId]];
 }
+
+- (void)applicationWillResignActive:(UIApplication *)application
+{
+    [[EXContactsSyncer sharedInstance] suspend];
+}
+
 
 @end

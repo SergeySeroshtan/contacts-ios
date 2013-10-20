@@ -9,21 +9,29 @@
 #import "EXContactsService.h"
 
 #import <RestKit/RestKit.h>
+#import "RKObjectMappingOperationDataSource.h"
+#import "RKMIMETypeSerialization.h"
+
 #import <SSKeychain/SSKeychain.h>
 
+#import "EXContact.h"
 #import "EXContactsMapping.h"
 
 #pragma mark - Public constants
 NSString * const EXContactsServiceErrorDomain = @"com.exadel.donetsk.office-tools.contacts";
+NSString * const kContactsServiceUrl = @"https://office-tools.donetsk.exadel.com/contacts/rest/";
 
 #pragma mark - Private constants
-/// Service base URL
-static NSString * const kContactsServiceUrl = @"https://office-tools.donetsk.exadel.com/contacts/rest/";
+static NSString * const kUserDefaults_MyContact = @"myContact";
 
 /// Service name for persistant secure storage
 static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools.contacts";
 
-//static NSString * const
+@interface EXContactsService ()
+
+@property (strong, nonatomic, readwrite) EXContact *signedUserContact;
+
+@end
 
 @implementation EXContactsService
 
@@ -35,7 +43,7 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
 }
 
 #pragma mark - Authentication
-+ (void)signInUser:(NSString *)name password:(NSString *)password completion:(EXContactsServiceCompletion)completion
+- (void)signInUser:(NSString *)name password:(NSString *)password completion:(EXContactsServiceCompletion)completion
 {
     PRECONDITION_ARG_NOT_NIL(name);
     PRECONDITION_ARG_NOT_NIL(password);
@@ -45,9 +53,11 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
         [self signOut];
     }
 
-    [[self preparedObjectManagerWithUserName:name password:password] getObjectsAtPath:@"my.json" parameters:nil
+    [[EXContactsService preparedObjectManagerWithUserName:name password:password] getObjectsAtPath:@"my.json"
+            parameters:nil
         success:^(RKObjectRequestOperation *operation, RKMappingResult *mappingResult)
         {
+            self.signedUserContact = [mappingResult firstObject];
             [SSKeychain setPassword:password forService:kContactsServiceName account:name];
             completion(YES, nil, nil);
         }
@@ -55,26 +65,74 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
         {
             NSString *message = NSLocalizedString(@"Wrong user name or password.",
                     @"Error message: login authentication failed.");
-            completion(NO, nil, [self notAuthorizedError:message]);
+            completion(NO, nil, [EXContactsService notAuthorizedError:message]);
         }
     ];
 }
 
-+ (void)signOut
+- (void)signOut
 {
-    NSString *userName = [self signedUserName];
+    NSString *userName = [self signedUserUid];
     if (userName != nil) {
         [SSKeychain deletePasswordForService:kContactsServiceName account:userName];
     }
 }
 
-#pragma mark - Authentication info
-+ (BOOL)isUserSignedIn
+#pragma mark - Accessors
+- (void)setSignedUserContact:(EXContact *)signedUserContact
 {
-    return [self signedUserName] != nil;
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    if (signedUserContact == nil) {
+        [userDefaults removeObjectForKey:kUserDefaults_MyContact];
+        return;
+    }
+    
+    RKObjectMapping *contactMapping = [RKObjectMapping mappingForClass:[EXContact class]];
+    [contactMapping addAttributeMappingsFromDictionary:[EXContactsMapping contactMapping]];
+    
+    NSMutableDictionary *contactDict = [NSMutableDictionary dictionary];
+    RKMappingOperation *mappingOperation = [[RKMappingOperation alloc] initWithSourceObject:signedUserContact
+            destinationObject:contactDict mapping:contactMapping];
+    [mappingOperation performMapping:nil];
+    
+    NSData *data = [RKMIMETypeSerialization dataFromObject:contactDict MIMEType:RKMIMETypeJSON error:nil];
+    if (data == nil) {
+        return;
+    }
+    
+    [userDefaults setObject:data forKey:kUserDefaults_MyContact];
+    [userDefaults synchronize];
 }
 
-+ (NSString *)signedUserName
+- (EXContact *)signedUserContact
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSData *contactData = [userDefaults objectForKey:kUserDefaults_MyContact];
+    if (contactData == nil) {
+        return nil;
+    }
+    
+    RKObjectMapping *contactMapping = [RKObjectMapping mappingForClass:[EXContact class]];
+    [contactMapping addAttributeMappingsFromDictionary:[EXContactsMapping contactMapping]];
+    
+    id contactDict = [RKMIMETypeSerialization objectFromData:contactData MIMEType:RKMIMETypeJSON error:nil];
+    EXContact *result = [[EXContact alloc] init];
+    
+    RKMappingOperation *mappingOperation = [[RKMappingOperation alloc] initWithSourceObject:contactDict
+            destinationObject:result mapping:contactMapping];
+    
+    [mappingOperation performMapping:nil];
+    
+    return result;
+}
+
+#pragma mark - Authentication info
+- (BOOL)isUserSignedIn
+{
+    return [self signedUserUid] != nil;
+}
+
+- (NSString *)signedUserUid
 {
     NSDictionary *userAccount = [[SSKeychain accountsForService:kContactsServiceName] lastObject];
     NSString *userName = [userAccount objectForKey:kSSKeychainAccountKey];
@@ -82,10 +140,10 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
 }
 
 #pragma mark - Service API
-+ (void)myContact:(EXContactsServiceCompletion)completion
+- (void)myContact:(EXContactsServiceCompletion)completion
 {
     if (![self isUserSignedIn]) {
-        completion(NO, nil, [self notAuthorizedError]);
+        completion(NO, nil, [EXContactsService notAuthorizedError]);
         return;
     }
     
@@ -100,21 +158,21 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
                     [error.userInfo valueForKeyPath:AFNetworkingOperationFailingURLResponseErrorKey];
             static const int kStatusCode_NotAuthorized = 401;
             if (response == nil) {
-                completion(NO, nil, [self internalError]);
+                completion(NO, nil, [EXContactsService internalError]);
             } else if (response.statusCode == kStatusCode_NotAuthorized) {
-                completion(NO, nil, [self notAuthorizedError]);
+                completion(NO, nil, [EXContactsService notAuthorizedError]);
             } else {
-                completion(NO, nil, [self notAvailableError]);
+                completion(NO, nil, [EXContactsService notAvailableError]);
             }
             NSLog(@"Request my contact error: %@", error);
         }
     ];
 }
 
-+ (void)coworkers:(EXContactsServiceCompletion)completion
+- (void)coworkers:(EXContactsServiceCompletion)completion
 {
     if (![self isUserSignedIn]) {
-        completion(NO, nil, [self notAuthorizedError]);
+        completion(NO, nil, [EXContactsService notAuthorizedError]);
         return;
     }
     
@@ -129,11 +187,11 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
                     [error.userInfo valueForKeyPath:AFNetworkingOperationFailingURLResponseErrorKey];
             static const int kStatusCode_NotAuthorized = 401;
             if (response == nil) {
-                completion(NO, nil, [self internalError]);
+                completion(NO, nil, [EXContactsService internalError]);
             } else if (response.statusCode == kStatusCode_NotAuthorized) {
-                completion(NO, nil, [self notAuthorizedError]);
+                completion(NO, nil, [EXContactsService notAuthorizedError]);
             } else {
-                completion(NO, nil, [self notAvailableError]);
+                completion(NO, nil, [EXContactsService notAvailableError]);
             }
             NSLog(@"Request coworkers error: %@", error);
         }
@@ -228,11 +286,11 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
     return objectManager;
 }
 
-+ (RKObjectManager *)preparedObjectManager
+- (RKObjectManager *)preparedObjectManager
 {
-    NSString *userName = [self signedUserName];
+    NSString *userName = [self signedUserUid];
     NSString *userPassword = [SSKeychain passwordForService:kContactsServiceName account:userName];
-    return [self preparedObjectManagerWithUserName:userName password:userPassword];
+    return [EXContactsService preparedObjectManagerWithUserName:userName password:userPassword];
 }
 
 @end

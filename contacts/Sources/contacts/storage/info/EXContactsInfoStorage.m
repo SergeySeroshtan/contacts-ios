@@ -27,10 +27,9 @@
 #pragma mark - Initialization
 - (id)init
 {
-    if ((self = [super init]) == nil) {
-        return nil;
+    if (self = [super init]) {
+        [self initDataStorage];
     }
-    [self initDataStorage];
     return self;
 }
 
@@ -55,6 +54,12 @@
         [result addObject:contactInfo.personId];
     }
     return result;
+}
+
+- (NSNumber *)personIdWithPhotoUrl:(NSString *)url
+{
+    PRECONDITION_ARG_NOT_NIL(url);
+    return [EXContactInfo findContactInfoByPhotoUrl:url inContext:self.dataContext error:NULL].personId;
 }
 
 - (BOOL)readContactInfoForPersonIds:(NSArray *)personIds toContacts:(NSArray *)contacts
@@ -162,6 +167,31 @@
         [self.dataContext deleteObject:contactInfo];
     }
     return [self saveChanges];
+}
+
+#pragma mark = Photos managing
+- (void)makeUnsyncedAllPhotosUrl
+{
+    NSArray *contactsInfo = [EXContactInfo findContactsInfoByPhotoSynced:YES inContext:self.dataContext error:nil];
+    for (EXContactInfo *contactInfo in contactsInfo) {
+        contactInfo.photoSyncedValue = NO;
+    }
+    [self.dataContext save:nil];
+}
+
+- (void)makeSyncedPhotoUrl:(NSString *)url
+{
+    PRECONDITION_ARG_NOT_NIL(url);
+    EXContactInfo *contactInfo = [EXContactInfo findContactInfoByPhotoUrl:url inContext:self.dataContext error:nil];
+    contactInfo.photoSyncedValue = YES;
+    [self.dataContext save:nil];
+}
+
+- (NSArray *)retreiveUnsyncedPhotosUrl
+{
+    NSArray *contactsInfo = [EXContactInfo findContactsInfoByPhotoSynced:NO inContext:self.dataContext error:nil];
+    return [contactsInfo valueForKeyPath:
+            [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", EXContactInfoAttributes.photoUrl]];
 }
 
 #pragma mark - Private

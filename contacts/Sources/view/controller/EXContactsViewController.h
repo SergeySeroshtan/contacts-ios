@@ -8,21 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
-#import "EXContactsStorageConsumer.h"
-
-@interface EXContactsViewController : UIViewController<EXContactsStorageConsumer>
-
-/// @name Configuration
-@property (strong, nonatomic) EXContactsStorage *contactsStorage;
+@interface EXContactsViewController : UIViewController
 
 /// @name UI outlets
 @property (weak, nonatomic) IBOutlet UILabel *userNameLabel;
 @property (weak, nonatomic) IBOutlet UILabel *lastSyncDateLabel;
 @property (weak, nonatomic) IBOutlet UIButton *syncContactsButton;
-@property (weak, nonatomic) IBOutlet UITextView *responseTextView;
 
 /// @name UI actions
-- (IBAction)syncContacts:(id)sender;
-- (IBAction)changeAccount:(id)sender;
+- (IBAction)syncNow:(id)sender;
+- (IBAction)editAccount:(id)sender;
 
 @end

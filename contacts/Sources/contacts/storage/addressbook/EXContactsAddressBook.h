@@ -82,4 +82,16 @@ typedef void(^EXContactsAddressBookCompletion)(BOOL success, NSError *error);
  */
 - (BOOL)drop;
 
+/// @name Photos managing
+/**
+ * Set photo for specifed person.
+ */
+- (void)setPhoto:(NSData *)photo forPerson:(NSUInteger)personId;
+
+/**
+ * Remove photo for specifed person.
+ */
+- (void)removePhotoForPerson:(NSUInteger)personId;
+
+
 @end

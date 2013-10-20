@@ -25,10 +25,9 @@
 - (id)initWithABPerson:(ABRecordRef)person
 {
     PRECONDITION_ARG_NOT_NIL(person);
-    if ((self = [super init]) == nil) {
-        return nil;
+    if (self = [super init]) {
+        self.person = person;
     }
-    self.person = person;
     return self;
 }
 

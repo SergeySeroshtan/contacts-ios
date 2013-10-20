@@ -42,6 +42,11 @@
 - (NSArray *)personIdsForContacts:(NSArray *)contacts;
 
 /**
+ * @return Person identifier with specified URL.
+ */
+- (NSNumber *)personIdWithPhotoUrl:(NSString *)url;
+
+/**
  * Read contact information for specifed persons (array of NSNumber),
  *     to specified contacts (array of EXContact class object).
  */
@@ -78,5 +83,21 @@
  * Drop storage with all related data.
  */
 - (BOOL)drop;
+
+/// @name Photos managing
+/**
+ * Mark all photos as unsynced, so next 'retreiveUnsyncedPhotosUrl' method will return photos url of all contacts.
+ */
+- (void)makeUnsyncedAllPhotosUrl;
+
+/**
+ * Sync contact's photo specified by url.
+ */
+- (void)makeSyncedPhotoUrl:(NSString *)url;
+
+/**
+ * @return URLs for unsynced photos (array of NSString).
+ */
+- (NSArray *)retreiveUnsyncedPhotosUrl;
 
 @end

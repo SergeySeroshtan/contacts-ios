@@ -15,21 +15,16 @@
 #import <SHAlertViewBlocks/SHAlertViewBlocks.h>
 #import <AFNetworking/AFNetworking.h>
 
-#import "EXContactsStorage.h"
-
 #import "EXAlert.h"
-#import "EXContactsService.h"
 #import "EXMainStoryboard.h"
 
-#define CF_SAFE_RELEASE(x)\
-        if (x) {\
-            CFRelease(x);\
-            x = NULL;\
-        }
+#import "EXContact.h"
+#import "EXContactsSyncer.h"
 
-@interface EXContactsViewController () <UIActionSheetDelegate>
+@interface EXContactsViewController () <EXContactSyncObserver>
 
 @property (strong, nonatomic) NSDateFormatter *lastSyncDateFormatter;
+@property (assign, nonatomic) BOOL syncInProgress;
 
 @end
 
@@ -40,6 +35,8 @@
 {
     self.lastSyncDateFormatter  = [[NSDateFormatter alloc] init];
     [self.lastSyncDateFormatter setDateFormat:@"dd/MM/yyyy hh:mm:ss"];
+    
+    self.syncInProgress = NO;
 }
 
 #pragma mark - UI lifecycle
@@ -47,36 +44,21 @@
 {
     [super viewDidLoad];
     [self makeInitialization];
+    [[EXContactsSyncer sharedInstance] addSyncObserver:self];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    PRECONDITION_TRUE(self.contactsStorage != nil);
+    PRECONDITION_TRUE([[EXContactsSyncer sharedInstance] isAccessible]);
     [super viewWillAppear:animated];
     [self updateUI];
 }
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    id<EXContactsStorageConsumer> contactsStorageConsumer = nil;
-    if ([segue.destinationViewController conformsToProtocol:@protocol(EXContactsStorageConsumer)]) {
-        contactsStorageConsumer = segue.destinationViewController;
-    } else {
-        if ([segue.destinationViewController isKindOfClass:[UINavigationController class]]) {
-            UINavigationController *navigationController = (UINavigationController *)segue.destinationViewController;
-            UIViewController *visibleViewController = [navigationController.viewControllers lastObject];
-            if ([visibleViewController conformsToProtocol:@protocol(EXContactsStorageConsumer)]) {
-                contactsStorageConsumer = (id<EXContactsStorageConsumer>)visibleViewController;
-            }
-        }
-    }
-    if (contactsStorageConsumer) {
-        [contactsStorageConsumer setContactsStorage:self.contactsStorage];
-    } else {
-        NSLog(@"Warning: Destination view controller does not implement %@ protocol!",
-                NSStringFromProtocol(@protocol(EXContactsStorageConsumer)));
-    }
-}
+//- (void)viewWillDisappear:(BOOL)animated
+//{
+//    [super viewWillDisappear:animated];
+//    [[EXContactsSyncer sharedInstance] removeSyncObserver:self];
+//}
 
 #pragma mark - UI actions
 - (void)removeAccount
@@ -91,8 +73,7 @@
         cancelTitle:cancelButtonTitle withBlock:^(NSInteger buttonIndex) {
             const NSInteger removeAccountButtonIndex = 1;
             if (buttonIndex == removeAccountButtonIndex) {
-                [self.contactsStorage drop];
-                [EXContactsService signOut];
+                [[EXContactsSyncer sharedInstance] removeAccount];
                 [self performSegueWithIdentifier:[EXMainStoryboard contactsToLoginViewControllerSegueId]
                         sender:self.view];
             }
@@ -100,42 +81,71 @@
     [confirmation show];
 }
 
-- (IBAction)changeAccount:(id)sender {
+- (void)forcePhotosSync
+{
+    PRECONDITION_TRUE(NO);
+}
+
+- (IBAction)editAccount:(id)sender {
     NSString *cancelButtonTitle = @"Cancel";
     NSString *removeAccountButtonTitle = @"Remove account";
+    NSString *forcePhotosSyncButtonTitle = @"Force photos sync";
 
-    UIActionSheet *changeAccountSheet = [UIActionSheet SH_actionSheetWithTitle:nil buttonTitles:nil
-        cancelTitle:cancelButtonTitle destructiveTitle:removeAccountButtonTitle
+    UIActionSheet *changeAccountSheet = [UIActionSheet SH_actionSheetWithTitle:nil
+            buttonTitles:@[forcePhotosSyncButtonTitle] cancelTitle:cancelButtonTitle
+            destructiveTitle:removeAccountButtonTitle
         withBlock:^(NSInteger buttonIndex)
         {
             const NSInteger removeAccountButtonIndex = 0;
+            const NSInteger forcePhotosUpdatingButtonIndex = 1;
             if (buttonIndex == removeAccountButtonIndex) {
                 [self removeAccount];
+            } else if (buttonIndex == forcePhotosUpdatingButtonIndex) {
+                [self forcePhotosSync];
             }
         }
     ];
     [changeAccountSheet showInView:self.view];
 }
 
-- (IBAction)syncContacts:(id)sender {
+- (IBAction)syncNow:(id)sender {
+    [[EXContactsSyncer sharedInstance] start];
+}
+
+#pragma mark - EXContactsSyncObserver
+- (void)contactsSyncerWillStartContactsSync:(EXContactsSyncer *)contactsSyncer
+{
+    MBProgressHUD *syncHud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+    syncHud.labelText = @"Sync";
+}
+
+- (void)contactsSyncerDidFinishContactsSync:(EXContactsSyncer *)contactsSyncer
+{
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+}
+
+- (void)contactsSyncerDidFailPhotosSync:(EXContactsSyncer *)contactsSyncer withError:(NSError *)error
+{
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    [EXAlert showWithMessage:[error localizedDescription] errorLevel:EXAlertErrorLevel_Fail];
+}
+
+- (void)contactsSyncer:(EXContactsSyncer *)contactsSyncer willStartPhotosSync:(NSUInteger)photosCount
+{
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    hud.labelText = @"Sync contacts";
-    [EXContactsService
-        coworkers:^(BOOL success, id data, NSError *error)
-        {
-            if (success) {
-                if ([self.contactsStorage syncContacts:data]) {
-                    [self updateUI];
-                } else {
-                    NSLog(@"Sync contacts failed due to error %@", self.contactsStorage.error);
-                }
-                [hud hide:YES];
-            } else {
-                [hud hide:YES];
-                [EXAlert showWithMessage:[error localizedDescription] errorLevel:EXAlertErrorLevel_Fail];
-            }
-        }
-    ];
+    hud.labelText = [NSString stringWithFormat:@"Sync photos (0 / %u)", photosCount];
+}
+
+- (void)contactsSyncer:(EXContactsSyncer *)contactsSyncer didSyncPhotos:(NSUInteger)syncedPhotosCount
+        ofTotal:(NSUInteger)totalPhotosCount
+{
+    MBProgressHUD *hud = [MBProgressHUD HUDForView:self.view];
+    hud.labelText = [NSString stringWithFormat:@"Sync photos (%u / %u)", syncedPhotosCount, totalPhotosCount];
+}
+
+- (void)contactsSyncerDidFinishPhotosSync:(EXContactsSyncer *)contactsSyncer
+{
+    [MBProgressHUD hideHUDForView:self.view animated:YES];
 }
 
 #pragma mark - Private
@@ -145,8 +155,11 @@
  */
 - (void)updateUI
 {
-    self.userNameLabel.text = [EXContactsService signedUserName];
-    NSDate *lastSyncDate = [self.contactsStorage lastSyncDate];
+    EXContact *myContact = [[EXContactsSyncer sharedInstance] signedUserContact];
+    NSString *fullName = myContact != nil ?
+            [NSString stringWithFormat:@"%@ %@", myContact.firstName, myContact.lastName] : @"";
+    self.userNameLabel.text = fullName;
+    NSDate *lastSyncDate = [[EXContactsSyncer sharedInstance] lastSyncDate];
     self.lastSyncDateLabel.text = lastSyncDate != nil ?
             [NSString stringWithFormat:@"Last sync: %@", [self.lastSyncDateFormatter stringFromDate:lastSyncDate]] :
             @"Contacts is not synced yet";

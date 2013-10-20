@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="mbS-6h-USq">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4510" systemVersion="12F45" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="mbS-6h-USq">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
     </dependencies>
@@ -154,29 +154,18 @@
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <action selector="syncContacts:" destination="BJt-4T-unr" eventType="touchUpInside" id="uRH-sa-fi3"/>
+                                    <action selector="syncNow:" destination="BJt-4T-unr" eventType="touchUpInside" id="yPi-wA-qpa"/>
                                 </connections>
                             </button>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o93-QY-YTa">
-                                <rect key="frame" x="20" y="148" width="280" height="374"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
-                            </textView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="o93-QY-YTa" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="8HZ-AW-9yO"/>
                             <constraint firstAttribute="trailing" secondItem="Dio-DV-dPS" secondAttribute="trailing" constant="20" symbolic="YES" id="FSL-OU-RRF"/>
                             <constraint firstItem="S2a-mD-Mzz" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="OfO-Kl-17Y"/>
                             <constraint firstItem="S2a-mD-Mzz" firstAttribute="top" secondItem="Lgw-a9-PMs" secondAttribute="bottom" constant="20" symbolic="YES" id="RFg-ST-MhI"/>
-                            <constraint firstItem="o93-QY-YTa" firstAttribute="top" secondItem="Dio-DV-dPS" secondAttribute="bottom" constant="8" symbolic="YES" id="TGy-eb-dOP"/>
-                            <constraint firstAttribute="trailing" secondItem="o93-QY-YTa" secondAttribute="trailing" constant="20" symbolic="YES" id="Vxv-HZ-cfM"/>
                             <constraint firstItem="Dio-DV-dPS" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="WSn-zY-NBI"/>
                             <constraint firstItem="Dio-DV-dPS" firstAttribute="top" secondItem="S2a-mD-Mzz" secondAttribute="bottom" constant="8" symbolic="YES" id="eu6-Li-y15"/>
                             <constraint firstItem="Yat-Iy-i4D" firstAttribute="top" secondItem="5YG-GZ-L6k" secondAttribute="bottom" constant="20" symbolic="YES" id="pfy-MM-pvY"/>
-                            <constraint firstItem="5YG-GZ-L6k" firstAttribute="top" secondItem="o93-QY-YTa" secondAttribute="bottom" constant="8" symbolic="YES" id="qCQ-co-yxZ"/>
                             <constraint firstItem="5YG-GZ-L6k" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="ugt-rS-aZu"/>
                             <constraint firstAttribute="trailing" secondItem="5YG-GZ-L6k" secondAttribute="trailing" constant="20" symbolic="YES" id="w6H-qx-pAV"/>
                             <constraint firstAttribute="trailing" secondItem="S2a-mD-Mzz" secondAttribute="trailing" constant="20" symbolic="YES" id="wIV-d6-DRc"/>
@@ -185,13 +174,12 @@
                     <navigationItem key="navigationItem" title="Contacts" id="U8d-oB-dKf">
                         <barButtonItem key="rightBarButtonItem" title="Edit" id="fME-jV-Dj0">
                             <connections>
-                                <action selector="changeAccount:" destination="BJt-4T-unr" id="XMB-6X-e6M"/>
+                                <action selector="editAccount:" destination="BJt-4T-unr" id="3ab-SG-hMa"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="lastSyncDateLabel" destination="Dio-DV-dPS" id="2HG-XD-HoY"/>
-                        <outlet property="responseTextView" destination="o93-QY-YTa" id="98x-c4-12r"/>
                         <outlet property="syncContactsButton" destination="5YG-GZ-L6k" id="POg-cG-tCD"/>
                         <outlet property="userNameLabel" destination="S2a-mD-Mzz" id="R3B-Qz-K4E"/>
                         <segue destination="vXZ-lx-hvc" kind="modal" identifier="ContactsToLoginViewControllerSegueId" id="xAk-9P-V22"/>
@@ -226,7 +214,7 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
+        <segue reference="xAk-9P-V22"/>
         <segue reference="Tew-82-Om9"/>
-        <segue reference="jqH-F8-5uh"/>
     </inferredMetricsTieBreakers>
 </document>

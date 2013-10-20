@@ -15,6 +15,7 @@ typedef void(^EXContactsStorageCompletion)(BOOL success, NSError *error);
 
 /**
  * This class manages persistant storages for contacts.
+ * Note that all methods SHOULD be invoked in main thread.
  */
 @interface EXContactsStorage : NSObject
 
@@ -39,7 +40,7 @@ typedef void(^EXContactsStorageCompletion)(BOOL success, NSError *error);
  */
  - (NSDate *)lastSyncDate;
 
-/// @name Managing
+/// @name Contacts managing
 /**
  * Synchronize all contacts in address book and contacts info storage.
  */
@@ -49,5 +50,21 @@ typedef void(^EXContactsStorageCompletion)(BOOL success, NSError *error);
  * Drop all contacts information.
  */
 - (BOOL)drop;
+
+/// @name Photos managing
+/**
+ * Mark all photos as unsynced, so next 'retreiveUnsyncedPhotosUrl' method will return photos url of all contacts.
+ */
+- (void)invalidateAllPhotos;
+
+/**
+ * @return URLs for unsynced photos (array of NSString).
+ */
+- (NSArray *)retreiveUnsyncedPhotosUrl;
+
+/**
+ * Sync contact's photo specified by url.
+ */
+- (void)syncPhoto:(NSData *)photo withUrl:(NSString *)url;
 
 @end

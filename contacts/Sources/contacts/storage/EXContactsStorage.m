@@ -29,11 +29,10 @@
 #pragma mark - Initialization
 - (id)init
 {
-    if ((self = [super init]) == nil) {
-        return nil;
+    if (self = [super init]) {
+        self.infoStorage = [[EXContactsInfoStorage alloc] init];
+        self.addressBook = [[EXContactsAddressBook alloc] init];
     }
-    self.infoStorage = [[EXContactsInfoStorage alloc] init];
-    self.addressBook = [[EXContactsAddressBook alloc] init];
     return self;
 }
 
@@ -161,9 +160,27 @@
 /**
  * @retrun Version of current storage.
  */
- - (NSString *)currentContactStorageVersion
- {
+- (NSString *)currentContactStorageVersion
+{
     return [EXAppSettings appVersion];
- }
+}
+
+#pragma mark - Photos managing
+- (void)invalidateAllPhotos
+{
+    [self.infoStorage makeUnsyncedAllPhotosUrl];
+}
+
+- (NSArray *)retreiveUnsyncedPhotosUrl
+{
+    return [self.infoStorage retreiveUnsyncedPhotosUrl];
+}
+
+- (void)syncPhoto:(NSData *)photo withUrl:(NSString *)url
+{
+    NSNumber *personId = [self.infoStorage personIdWithPhotoUrl:url];
+    [self.addressBook setPhoto:photo forPerson:personId.intValue];
+    [self.infoStorage makeSyncedPhotoUrl:url];
+}
 
 @end
