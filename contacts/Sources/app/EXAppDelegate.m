@@ -30,7 +30,10 @@
     contactsSyncer.mobileNetworksEnabled = [EXAppSettings useMobileNetworks];
     contactsSyncer.localNotificationEnabled = [EXAppSettings useLocalNotifications];
     contactsSyncer.groupName = [EXAppSettings coworkersGroupName];
-    [contactsSyncer awake];
+
+    if (contactsSyncer.isAccessible) {
+        [contactsSyncer awake];
+    }
     
     self.window.rootViewController = [self.window.rootViewController.storyboard
             instantiateViewControllerWithIdentifier:[EXMainStoryboard addressBookDeniedViewControllerId]];
