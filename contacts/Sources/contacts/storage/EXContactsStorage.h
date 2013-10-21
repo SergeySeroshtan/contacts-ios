@@ -15,7 +15,7 @@ typedef void(^EXContactsStorageCompletion)(BOOL success, NSError *error);
 
 /**
  * This class manages persistant storages for contacts.
- * Note that all methods SHOULD be invoked in main thread.
+ * Note, all methods SHOULD be invoked in the main thread.
  */
 @interface EXContactsStorage : NSObject
 

@@ -27,6 +27,7 @@
 #pragma mark - Initialization
 - (id)init
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     if (self = [super init]) {
         [self initDataStorage];
     }
@@ -36,6 +37,7 @@
 #pragma mark - Info
 - (NSArray *)allPersonIds
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_TRUE(self.isAccessible);
     return [[EXContactInfo allContactsInfoInContext:self.dataContext error:nil] valueForKeyPath:
             [NSString stringWithFormat:@"@unionOfObjects.%@", EXContactInfoAttributes.personId]];
@@ -43,6 +45,7 @@
 
 - (NSArray *)personIdsForContacts:(NSArray *)contacts
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_TRUE(self.isAccessible);
     NSMutableArray *result = [NSMutableArray arrayWithCapacity:contacts.count];
     for (EXContact *contact in contacts) {
@@ -58,12 +61,14 @@
 
 - (NSNumber *)personIdWithPhotoUrl:(NSString *)url
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(url);
     return [EXContactInfo findContactInfoByPhotoUrl:url inContext:self.dataContext error:NULL].personId;
 }
 
 - (BOOL)readContactInfoForPersonIds:(NSArray *)personIds toContacts:(NSArray *)contacts
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(personIds);
     PRECONDITION_ARG_NOT_NIL(contacts);
     PRECONDITION_TRUE(self.isAccessible);
@@ -86,6 +91,7 @@
 #pragma mark - Managing
 - (BOOL)addContactInfoForPersonIds:(NSArray *)personIds contacts:(NSArray *)contacts
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(personIds);
     PRECONDITION_ARG_NOT_NIL(contacts);
     PRECONDITION_TRUE(self.isAccessible);
@@ -107,6 +113,7 @@
 
 - (NSArray *)updateContactInfoForContacts:(NSArray *)contacts
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(contacts);
     PRECONDITION_TRUE(self.isAccessible);
 
@@ -134,6 +141,7 @@
 
 - (BOOL)removeContactInfoForPersonIds:(NSArray *)personIds
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(personIds);
     PRECONDITION_TRUE(self.isAccessible);
     for (NSNumber *personId in personIds) {
@@ -149,6 +157,7 @@
 
 - (BOOL)leaveContactInfoOnlyForPersonIds:(NSArray *)personIds
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(personIds);
     PRECONDITION_TRUE(self.isAccessible);
     NSSet *personIdsSet = [NSSet setWithArray:personIds];
@@ -162,6 +171,7 @@
 
 - (BOOL)drop
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_TRUE(self.isAccessible);
     for (EXContactInfo *contactInfo in [EXContactInfo allContactsInfoInContext:self.dataContext error:nil]) {
         [self.dataContext deleteObject:contactInfo];
@@ -172,6 +182,7 @@
 #pragma mark = Photos managing
 - (void)makeUnsyncedAllPhotosUrl
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     NSArray *contactsInfo = [EXContactInfo findContactsInfoByPhotoSynced:YES inContext:self.dataContext error:nil];
     for (EXContactInfo *contactInfo in contactsInfo) {
         contactInfo.photoSyncedValue = NO;
@@ -181,6 +192,7 @@
 
 - (void)makeSyncedPhotoUrl:(NSString *)url
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(url);
     EXContactInfo *contactInfo = [EXContactInfo findContactInfoByPhotoUrl:url inContext:self.dataContext error:nil];
     contactInfo.photoSyncedValue = YES;
@@ -189,6 +201,7 @@
 
 - (NSArray *)retreiveUnsyncedPhotosUrl
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     NSArray *contactsInfo = [EXContactInfo findContactsInfoByPhotoSynced:NO inContext:self.dataContext error:nil];
     return [contactsInfo valueForKeyPath:
             [NSString stringWithFormat:@"@distinctUnionOfObjects.%@", EXContactInfoAttributes.photoUrl]];

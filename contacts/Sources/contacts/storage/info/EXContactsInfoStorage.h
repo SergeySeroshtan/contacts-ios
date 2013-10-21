@@ -12,6 +12,7 @@
 
 /**
  * This class provides access to EXContactInfo objects permanent storage.
+ * Note, all methods SHOULD be invoked in the main thread.
  */
 @interface EXContactsInfoStorage : NSObject
 

@@ -34,6 +34,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 #pragma mark - Initialize
 - (id)init
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     if (self = [super init]) {
         [self tryAddressBookLasyInit];
     }
@@ -42,6 +43,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 
 - (void)dealloc
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     CF_SAFE_RELEASE(self.addressBook);
     CF_SAFE_RELEASE(self.coworkersGroup);
 }
@@ -49,11 +51,13 @@ static NSString * const kContactsGroupName = @"coworkers";
 #pragma mark - Access permissions
 - (BOOL)isAccessible
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     return ABAddressBookGetAuthorizationStatus() == kABAuthorizationStatusAuthorized;
 }
 
 - (void)requestAccessWithCompletion:(EXContactsAddressBookCompletion)completion
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(completion);
 
     CFErrorRef error = NULL;
@@ -66,6 +70,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 #pragma mark - Access
 - (NSArray *)allPersonIds
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_TRUE(self.isAccessible);
 
     if ([self tryAddressBookLasyInit] == NO) {
@@ -89,6 +94,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 
 - (NSArray *)allContacts
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_TRUE(self.isAccessible);
 
     if ([self tryAddressBookLasyInit] == NO) {
@@ -112,6 +118,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 
 - (NSArray *)contactsForPersonIds:(NSArray *)personIds
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(personIds);
     PRECONDITION_TRUE(self.isAccessible);
 
@@ -135,6 +142,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 #pragma mark - Managing
 - (NSArray *)addPersonsForContacts:(NSArray *)contacts
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(contacts);
     PRECONDITION_TRUE(self.isAccessible);
 
@@ -160,6 +168,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 
 - (BOOL)updatePersonWithIds:(NSArray *)personIds contacts:(NSArray *)contacts
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(personIds);
     PRECONDITION_ARG_NOT_NIL(contacts)
     PRECONDITION_TRUE(self.isAccessible);
@@ -201,6 +210,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 
 - (BOOL)removePersonWithIds:(NSArray *)personIds
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(personIds);
     PRECONDITION_TRUE(self.isAccessible);
 
@@ -229,6 +239,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 
 - (BOOL)leavePersonWithIds:(NSArray *)personIds
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_ARG_NOT_NIL(personIds);
     PRECONDITION_TRUE(self.isAccessible);
 
@@ -260,6 +271,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 
 - (BOOL)drop
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     PRECONDITION_TRUE(self.isAccessible);
 
     if ([self tryAddressBookLasyInit] == NO) {
@@ -279,6 +291,7 @@ static NSString * const kContactsGroupName = @"coworkers";
 #pragma mark - Photos managing
 - (void)setPhoto:(NSData *)photo forPerson:(NSUInteger)personId
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     ABRecordRef person = ABAddressBookGetPersonWithRecordID(self.addressBook , personId);
     if (person == NULL) {
         return;

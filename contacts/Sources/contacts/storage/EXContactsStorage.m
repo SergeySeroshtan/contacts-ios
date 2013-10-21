@@ -29,6 +29,7 @@
 #pragma mark - Initialization
 - (id)init
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     if (self = [super init]) {
         self.infoStorage = [[EXContactsInfoStorage alloc] init];
         self.addressBook = [[EXContactsAddressBook alloc] init];
@@ -39,11 +40,13 @@
 #pragma mark - Accessing
 - (BOOL)isAccessible
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     return self.addressBook.isAccessible && self.infoStorage.isAccessible;
 }
 
 - (void)requestAccessWithCompletion:(EXContactsStorageCompletion)completion
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     [self.addressBook
         requestAccessWithCompletion:^(BOOL success, NSError *error) {
             completion(success, error);
@@ -53,12 +56,14 @@
 
 - (NSDate *)lastSyncDate
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     return [EXAppSettings lastSyncDate];
 }
 
 /// @name Managing
 - (BOOL)syncContacts:(NSArray *)contacts
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     // Initiate force update if needed
     BOOL needForceUpdate =
             ![[EXAppSettings contactsStorgaeVersion] isEqualToString:[self currentContactStorageVersion]];
@@ -117,11 +122,33 @@
 
 - (BOOL)drop
 {
+    PRECONDITION_TRUE([NSThread isMainThread]);
     BOOL addressBookDroped = [self.addressBook drop];
     BOOL infoStorageDropped = [self.infoStorage drop];
     [EXAppSettings removeLastSyncDate];
     [EXAppSettings removeContactsStorageVersion];
     return addressBookDroped && infoStorageDropped;
+}
+
+#pragma mark - Photos managing
+- (void)invalidateAllPhotos
+{
+    PRECONDITION_TRUE([NSThread isMainThread]);
+    [self.infoStorage makeUnsyncedAllPhotosUrl];
+}
+
+- (NSArray *)retreiveUnsyncedPhotosUrl
+{
+    PRECONDITION_TRUE([NSThread isMainThread]);
+    return [self.infoStorage retreiveUnsyncedPhotosUrl];
+}
+
+- (void)syncPhoto:(NSData *)photo withUrl:(NSString *)url
+{
+    PRECONDITION_TRUE([NSThread isMainThread]);
+    NSNumber *personId = [self.infoStorage personIdWithPhotoUrl:url];
+    [self.addressBook setPhoto:photo forPerson:personId.intValue];
+    [self.infoStorage makeSyncedPhotoUrl:url];
 }
 
 #pragma mark - Private
@@ -163,24 +190,6 @@
 - (NSString *)currentContactStorageVersion
 {
     return [EXAppSettings appVersion];
-}
-
-#pragma mark - Photos managing
-- (void)invalidateAllPhotos
-{
-    [self.infoStorage makeUnsyncedAllPhotosUrl];
-}
-
-- (NSArray *)retreiveUnsyncedPhotosUrl
-{
-    return [self.infoStorage retreiveUnsyncedPhotosUrl];
-}
-
-- (void)syncPhoto:(NSData *)photo withUrl:(NSString *)url
-{
-    NSNumber *personId = [self.infoStorage personIdWithPhotoUrl:url];
-    [self.addressBook setPhoto:photo forPerson:personId.intValue];
-    [self.infoStorage makeSyncedPhotoUrl:url];
 }
 
 @end

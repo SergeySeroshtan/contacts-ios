@@ -13,7 +13,8 @@
 typedef void(^EXContactsAddressBookCompletion)(BOOL success, NSError *error);
 
 /**
- * This class manages contacts in iOS AddressBook
+ * This class manages contacts in iOS AddressBook.
+ * Note, all methods SHOULD be invoked in the main thread.
  */
 @interface EXContactsAddressBook : NSObject
 
