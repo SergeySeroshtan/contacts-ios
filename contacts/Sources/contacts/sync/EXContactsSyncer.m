@@ -180,9 +180,9 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
         if (success) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.contactsStorage syncContacts:data];
+                [self fireDidFinishContactsSync];
+                [self startPhotosSync];
             });
-            [self fireDidFinishContactsSync];
-            [self startPhotosSync];
         } else {
             [self fireDidFailContactsSyncWithError:error];
         }
