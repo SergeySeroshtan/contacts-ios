@@ -31,6 +31,11 @@
     return self;
 }
 
+- (void)dealloc
+{
+    self.person = NULL;
+}
+
 #pragma mark - Accessors
 - (NSString *)firstName
 {
@@ -204,9 +209,11 @@
     CF_SAFE_RELEASE(im);
 
     // 2. Create new skype record
-    CFMutableDictionaryRef newSkypeRecord = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 2, NULL, NULL);
-    CFDictionaryAddValue(newSkypeRecord, kABPersonInstantMessageServiceKey, kABPersonInstantMessageServiceSkype);
-    CFDictionaryAddValue(newSkypeRecord, kABPersonInstantMessageUsernameKey, (__bridge CFStringRef)skype);
+    NSDictionary *newSkypeRecord = @{
+        (__bridge NSString *)kABPersonInstantMessageServiceKey :
+                (__bridge NSString *)kABPersonInstantMessageServiceSkype,
+        (__bridge NSString *)kABPersonInstantMessageUsernameKey : skype
+    };
 
     // 3. Try find and update existing skype record.
     BOOL skypeRecordWasUpdated = NO;
@@ -214,7 +221,7 @@
         CFDictionaryRef imService = ABMultiValueCopyValueAtIndex(newIm, pos);
         CFStringRef serviceKey = CFDictionaryGetValue(imService, kABPersonInstantMessageServiceKey);
         if (CFStringCompare(serviceKey, kABPersonInstantMessageServiceSkype, 0) == kCFCompareEqualTo) {
-            ABMultiValueReplaceValueAtIndex(newIm, newSkypeRecord, pos);
+            ABMultiValueReplaceValueAtIndex(newIm, (__bridge CFDictionaryRef)newSkypeRecord, pos);
             skypeRecordWasUpdated = YES;
             CF_SAFE_RELEASE(imService);
             break;
@@ -224,14 +231,13 @@
 
     // 4. Add new skype record if it was not found.
     if (!skypeRecordWasUpdated) {
-        ABMultiValueAddValueAndLabel(newIm, newSkypeRecord, NULL, NULL);
+        ABMultiValueAddValueAndLabel(newIm, (__bridge CFDictionaryRef)newSkypeRecord, NULL, NULL);
     }
 
     // 5. Save changes
     ABRecordSetValue(self.person, kABPersonInstantMessageProperty, newIm, NULL);
 
     CF_SAFE_RELEASE(newIm);
-    CF_SAFE_RELEASE(newSkypeRecord);
 }
 
 - (void)removeSkype
@@ -313,21 +319,21 @@
     CF_SAFE_RELEASE(addresses);
 
     // 2. Create new location record
-    CFMutableDictionaryRef newLocationRecord = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 1, NULL, NULL);
-    CFDictionaryAddValue(newLocationRecord, kABPersonAddressCityKey, (__bridge CFStringRef)location);
+    NSDictionary *newLocationRecord = @{
+        (__bridge NSString *)kABPersonAddressCityKey : location
+    };
 
     // 3. Try find and update existing location record, or add new one.
     if (ABMultiValueGetCount(newAddresses) > 0) {
-        ABMultiValueReplaceValueAtIndex(newAddresses, newLocationRecord, 0);
+        ABMultiValueReplaceValueAtIndex(newAddresses, (__bridge CFDictionaryRef)newLocationRecord, 0);
     } else {
-        ABMultiValueAddValueAndLabel(newAddresses, newLocationRecord, NULL, NULL);
+        ABMultiValueAddValueAndLabel(newAddresses, (__bridge CFDictionaryRef)newLocationRecord, NULL, NULL);
     }
 
     // 4. Save changes
     ABRecordSetValue(self.person, kABPersonAddressProperty, newAddresses, NULL);
 
     CF_SAFE_RELEASE(newAddresses);
-    CF_SAFE_RELEASE(newLocationRecord);
 }
 
 - (void)removeLocation
