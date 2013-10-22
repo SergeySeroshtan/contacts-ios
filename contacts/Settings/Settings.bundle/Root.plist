@@ -32,6 +32,28 @@
 		</dict>
 		<dict>
 			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Sync period</string>
+			<key>Titles</key>
+			<array>
+				<string>Every day</string>
+				<string>Every 3 days</string>
+				<string>Every week</string>
+			</array>
+			<key>Key</key>
+			<string>SyncPeriodKey</string>
+			<key>Values</key>
+			<array>
+				<integer>1</integer>
+				<integer>3</integer>
+				<integer>7</integer>
+			</array>
+			<key>DefaultValue</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>Title</key>
 			<string>Notifications</string>
@@ -61,28 +83,6 @@
 			<string>CoworkersGroupKey</string>
 			<key>DefaultValue</key>
 			<string>coworkers</string>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSMultiValueSpecifier</string>
-			<key>Title</key>
-			<string>Sync period</string>
-			<key>Titles</key>
-			<array>
-				<string>Every day</string>
-				<string>Every 3 days</string>
-				<string>Every week</string>
-			</array>
-			<key>Key</key>
-			<string>SyncPeriodKey</string>
-			<key>Values</key>
-			<array>
-				<integer>1</integer>
-				<integer>3</integer>
-				<integer>7</integer>
-			</array>
-			<key>DefaultValue</key>
-			<integer>1</integer>
 		</dict>
 	</array>
 	<key>StringsTable</key>

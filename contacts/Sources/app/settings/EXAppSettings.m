@@ -8,6 +8,9 @@
 
 #import "EXAppSettings.h"
 
+#pragma mark - Location
+static NSString * const kRootSettings_Path = @"Settings.bundle/Root.plist";
+
 #pragma mark - Keys
 static NSString * const kRootSettingsKey_LoadPhotos = @"LoadPhotosKey";
 static NSString * const kRootSettingsKey_UseMobileNetworks = @"UseMobileNetworksKey";
@@ -18,6 +21,32 @@ static NSString * const kRootSettingsKey_ContactsDatabaseVersion = @"ContactsDat
 static NSString * const kRootSettingsKey_SyncPeriodKey = @"SyncPeriodKey";
 
 @implementation EXAppSettings
+
+#pragma mark - Initialize
++ (void)initialize
+{
+    if (![[NSUserDefaults standardUserDefaults] objectForKey:kRootSettingsKey_LoadPhotos])  {
+
+        NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
+        NSString *settingsPropertyListPath = [mainBundlePath stringByAppendingPathComponent:kRootSettings_Path];
+
+        NSDictionary *settingsPropertyList = [NSDictionary dictionaryWithContentsOfFile:settingsPropertyListPath];
+
+        NSMutableArray *preferenceArray = [settingsPropertyList objectForKey:@"PreferenceSpecifiers"];
+        NSMutableDictionary *registerableDictionary = [NSMutableDictionary dictionary];
+
+        for (int i = 0; i < [preferenceArray count]; i++)  { 
+            NSString *key = [[preferenceArray objectAtIndex:i] objectForKey:@"Key"];
+            if (key)  {
+                id value = [[preferenceArray objectAtIndex:i] objectForKey:@"DefaultValue"];
+                [registerableDictionary setObject:value forKey:key];
+            }
+        }
+
+        [[NSUserDefaults standardUserDefaults] registerDefaults:registerableDictionary]; 
+        [[NSUserDefaults standardUserDefaults] synchronize]; 
+    }
+}
 
 #pragma mark - Info
 + (NSString *)appVersion
