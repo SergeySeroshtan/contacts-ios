@@ -21,10 +21,14 @@
 #import "EXContact.h"
 #import "EXContactsSyncer.h"
 
+#pragma mark - Sync status labels
+static NSString * const kSyncStatusLabel_Undefined = @"undefined";
+static NSString * const kSyncStatusLabel_Started = @"started";
+static NSString * const kSyncStatusLabel_Stopped = @"stopped";
+
 @interface EXContactsViewController () <EXContactSyncObserver>
 
 @property (strong, nonatomic) NSDateFormatter *lastSyncDateFormatter;
-@property (assign, nonatomic) BOOL syncInProgress;
 
 @end
 
@@ -35,8 +39,6 @@
 {
     self.lastSyncDateFormatter  = [[NSDateFormatter alloc] init];
     [self.lastSyncDateFormatter setDateFormat:@"dd/MM/yyyy hh:mm:ss"];
-    
-    self.syncInProgress = NO;
 }
 
 #pragma mark - UI lifecycle
@@ -45,13 +47,14 @@
     [super viewDidLoad];
     [self makeInitialization];
     [[EXContactsSyncer sharedInstance] addSyncObserver:self];
+    [self updateUI];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     PRECONDITION_TRUE([[EXContactsSyncer sharedInstance] isAccessible]);
     [super viewWillAppear:animated];
-    [self updateUI];
+    [self updateSyncLabels];
 }
 
 #pragma mark - UI actions
@@ -109,39 +112,40 @@
 #pragma mark - EXContactsSyncObserver
 - (void)contactsSyncerDidStartContactsSync:(EXContactsSyncer *)contactsSyncer
 {
-    MBProgressHUD *syncHud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    syncHud.labelText = @"Sync contacts";
+    self.syncContactsStatusLabel.text = kSyncStatusLabel_Started;
 }
 
 - (void)contactsSyncerDidFinishContactsSync:(EXContactsSyncer *)contactsSyncer
 {
-    [MBProgressHUD hideHUDForView:self.view animated:YES];
-    [self updateUI];
+    self.syncContactsStatusLabel.text = kSyncStatusLabel_Stopped;
+    [self updateSyncLabels];
 }
 
-- (void)contactsSyncerDidFailPhotosSync:(EXContactsSyncer *)contactsSyncer withError:(NSError *)error
+- (void)contactsSyncerDidFailContactsSync:(EXContactsSyncer *)contactsSyncer withError:(NSError *)error
 {
-    [MBProgressHUD hideHUDForView:self.view animated:YES];
-    [EXAlert showWithMessage:[error localizedDescription] errorLevel:EXAlertErrorLevel_Fail];
+    self.syncContactsStatusLabel.text = kSyncStatusLabel_Stopped;
 }
 
 - (void)contactsSyncer:(EXContactsSyncer *)contactsSyncer didStartPhotosSync:(NSUInteger)photosCount
 {
-    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    hud.labelText = [NSString stringWithFormat:@"Sync photos (0 / %u)", photosCount];
+    self.syncPhotosStatusLabel.text = [NSString stringWithFormat:@"(0 / %lu)", (unsigned long)photosCount];
 }
 
 - (void)contactsSyncer:(EXContactsSyncer *)contactsSyncer didSyncPhotos:(NSUInteger)syncedPhotosCount
         ofTotal:(NSUInteger)totalPhotosCount
 {
-    MBProgressHUD *hud = [MBProgressHUD HUDForView:self.view];
-    hud.labelText = [NSString stringWithFormat:@"Sync photos (%u / %u)", syncedPhotosCount, totalPhotosCount];
+    self.syncPhotosStatusLabel.text = [NSString stringWithFormat:@"(%lu / %lu)",
+            (unsigned long)syncedPhotosCount, (unsigned long)totalPhotosCount];
 }
 
 - (void)contactsSyncerDidFinishPhotosSync:(EXContactsSyncer *)contactsSyncer
 {
-    NSLog(@"Is main thread %d", [NSThread isMainThread]);
-    [MBProgressHUD hideHUDForView:self.view animated:YES];
+    self.syncPhotosStatusLabel.text = kSyncStatusLabel_Stopped;
+}
+
+- (void)contactsSyncerDidFailPhotosSync:(EXContactsSyncer *)contactsSyncer withError:(NSError *)error
+{
+    self.syncPhotosStatusLabel.text = kSyncStatusLabel_Stopped;
 }
 
 #pragma mark - Private
@@ -155,10 +159,22 @@
     NSString *fullName = myContact != nil ?
             [NSString stringWithFormat:@"%@ %@", myContact.firstName, myContact.lastName] : @"";
     self.userNameLabel.text = fullName;
+    [self updateSyncLabels];
+}
+
+
+- (void)updateSyncLabels
+{
     NSDate *lastSyncDate = [[EXContactsSyncer sharedInstance] lastSyncDate];
     self.lastSyncDateLabel.text = lastSyncDate != nil ?
-            [NSString stringWithFormat:@"Last sync: %@", [self.lastSyncDateFormatter stringFromDate:lastSyncDate]] :
-            @"Contacts is not synced yet";
+            [NSString stringWithFormat:@"%@", [self.lastSyncDateFormatter stringFromDate:lastSyncDate]] :
+            kSyncStatusLabel_Undefined;
+
+    self.syncContactsStatusLabel.text =
+            [[EXContactsSyncer sharedInstance] isSyncContacts] ? kSyncStatusLabel_Started : kSyncStatusLabel_Stopped;
+    self.syncPhotosStatusLabel.text =
+            [[EXContactsSyncer sharedInstance] isSyncPhotos] ? kSyncStatusLabel_Started : kSyncStatusLabel_Stopped;
+
 }
 
 @end

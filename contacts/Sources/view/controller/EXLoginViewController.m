@@ -59,6 +59,12 @@
     ];
 }
 
+- (IBAction)showPassword:(id)sender
+{
+    UISwitch *showPasswordSitch = sender;
+    self.userPasswordTextField.secureTextEntry = !showPasswordSitch.on;
+}
+
 #pragma mark - UITextFieldDelegate protocol
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {

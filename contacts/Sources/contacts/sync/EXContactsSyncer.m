@@ -42,6 +42,8 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
 @property (strong, nonatomic) AFHTTPClient *httpClient;
 @property (strong, nonatomic) NSOperationQueue *photosSyncQueue;
 
+@property (strong, nonatomic) NSOperationQueue *mainQueue;
+
 /// @name Clue for improper use (produces compile time error).
 -(instancetype) init __attribute__((unavailable("init not available, call sharedInstance instead")));
 
@@ -75,13 +77,16 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
         
         self.photosSyncQueue = [[NSOperationQueue alloc] init];
         self.photosSyncQueue.maxConcurrentOperationCount = kPhotos_MaxConcurrentCount;
-        
-        [self.photosSyncQueue addObserver:self forKeyPath:kPhotosSyncQueueObserveValue_OperationCount
-                options:NSKeyValueObservingOptionNew context:(__bridge void *)kPhotosSyncQueueObserveContext];
-        
-        [self addObserver:self forKeyPath:@"internalState" options:NSKeyValueObservingOptionNew context:nil];
+
+        self.mainQueue = [NSOperationQueue mainQueue];
     }
     return self;
+}
+
+#pragma mark - Accessiblity
+- (BOOL)isAccessible
+{
+    return self.contactsService.isUserSignedIn && self.contactsStorage.isAccessible;
 }
 
 #pragma mark - Address Book
@@ -116,6 +121,7 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
 
 - (void)removeAccount
 {
+    [self.syncObservers removeAllObjects];
     [self.contactsStorage drop];
     [self.contactsService signOut];
 }
@@ -136,7 +142,7 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
     if (self.syncContacts) {
         return;
     }
-    [self processSync];
+    [self syncAll];
 }
 
 - (void)resyncPhotos
@@ -145,15 +151,17 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
         [self stopPhotosSync];
     }
     [self.contactsStorage invalidateAllPhotos];
-    [self startPhotosSync];
+    [self startSyncPhotos];
 }
 
 - (void)awake
 {
-    if (self.syncPhotos) {
+    if ([self needSyncAll]) {
+        [self syncAll];
+    } else if (self.syncPhotos) {
         [self resumeSyncPhotos];
-    } else if ([self needSync]) {
-        [self processSync];
+    } else {
+        [self startSyncPhotos];
     }
 }
 
@@ -164,12 +172,22 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
     }
 }
 
-- (BOOL)needSync
+
+- (BOOL)needSyncAll
 {
-    return YES;
+    if ([self lastSyncDate] == nil) {
+        return YES;
+    }
+
+    NSTimeInterval daysFromLastSync = ABS([[self lastSyncDate] timeIntervalSinceNow]) / 60 / 60 / 24;
+    if (daysFromLastSync > self.syncPeriod) {
+        return YES;
+    }
+
+    return NO;
 }
 
-- (void)processSync
+- (void)syncAll
 {
     if (self.syncPhotos) {
         [self stopPhotosSync];
@@ -178,11 +196,11 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
     [self fireDidStartContactsSync];
     [self.contactsService coworkers:^(BOOL success, id data, NSError *error) {
         if (success) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+            [self.mainQueue addOperationWithBlock:^{
                 [self.contactsStorage syncContacts:data];
                 [self fireDidFinishContactsSync];
-                [self startPhotosSync];
-            });
+                [self startSyncPhotos];
+            }];
         } else {
             [self fireDidFailContactsSyncWithError:error];
         }
@@ -190,7 +208,7 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
     }];
 }
 
-- (void)startPhotosSync
+- (void)startSyncPhotos
 {
     if (self.syncPhotos) {
         return;
@@ -203,6 +221,11 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
     if (totalSyncPhotosCount == 0) {
         return;
     }
+
+    NSOperation *photosFinishSyncOperation = [NSBlockOperation blockOperationWithBlock:^{
+        self.syncPhotos = NO;
+        [self fireDidFinishPhotosSync];
+    }];
 
     [self.photosSyncQueue setSuspended:YES];
     for (NSString * urlString in photosUrl) {
@@ -218,13 +241,13 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
                 [self processLoadedPhoto:responseObject fromUrl:operation.request.URL.absoluteString
                         ofTotalCount:totalSyncPhotosCount];
             } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                // Ignore
-                NSLog(@"Failed HTTP request: %@, due to error %@", operation.request, error);
+                // Ignore error
             }
         ];
-
         [self.photosSyncQueue addOperation:operation];
+        [photosFinishSyncOperation addDependency:operation];
     }
+    [self.photosSyncQueue addOperation:photosFinishSyncOperation];
     self.syncPhotos = YES;
     [self fireDidStartPhotosSync:totalSyncPhotosCount];
     [self.photosSyncQueue setSuspended:NO];
@@ -236,8 +259,8 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
         return;
     }
     [self.photosSyncQueue cancelAllOperations];
-    [self fireDidFinishPhotosSync];
     self.syncPhotos = NO;
+    [self fireDidFinishPhotosSync];
 }
 
 - (void)resumeSyncPhotos
@@ -263,20 +286,25 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
 {
     PRECONDITION_ARG_NOT_NIL(photo);
     PRECONDITION_ARG_NOT_NIL(url);
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [self.mainQueue addOperationWithBlock:^{
         [self.contactsStorage syncPhoto:photo withUrl:url];
-    });
-    NSUInteger syncedPhotosCount = totalSyncPhotoCount - self.photosSyncQueue.operationCount;
-    [self fireDidSyncPhotos:syncedPhotosCount ofTotal:totalSyncPhotoCount];
+        NSUInteger syncedPhotosCount = totalSyncPhotoCount - self.photosSyncQueue.operationCount;
+        [self fireDidSyncPhotos:syncedPhotosCount ofTotal:totalSyncPhotoCount];
+    }];
 }
 
-#pragma mark - Accessible state
-- (BOOL)isAccessible
+#pragma mark - Sync state
+- (BOOL)isSyncContacts
 {
-    return self.contactsService.isUserSignedIn && self.contactsStorage.isAccessible;
+    return self.syncContacts;
 }
 
-/// @name Sync observing
+- (BOOL)isSyncPhotos
+{
+    return self.syncPhotos;
+}
+
+#pragma mark - Sync observing
 - (NSDate *)lastSyncDate
 {
     return self.contactsStorage.lastSyncDate;
@@ -295,112 +323,93 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
     [self.syncObservers removeObject:syncObserver];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change
-        context:(void *)context
-{
-    if (context == (__bridge void *)kPhotosSyncQueueObserveContext &&
-            [keyPath isEqualToString:kPhotosSyncQueueObserveValue_OperationCount]) {
-        NSNumber *operationCount = [change objectForKey:NSKeyValueChangeNewKey];
-        if (self.syncPhotos) {
-            if (operationCount.intValue == 0) {
-                [self stopPhotosSync];
-            }
-        }
-    }
-}
-
-#pragma mark - 
-
 #pragma mark - Private
 #pragma mark - Sync observer notification
 - (void)fireDidStartContactsSync
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [self.mainQueue addOperationWithBlock:^{
         for (id<EXContactSyncObserver> observer in self.syncObservers) {
             if (![observer respondsToSelector:@selector(contactsSyncerDidStartContactsSync:)]) {
                 continue;
             }
             [observer contactsSyncerDidStartContactsSync:self];
         }
-    });
+    }];
 }
 
 - (void)fireDidFinishContactsSync
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [self.mainQueue addOperationWithBlock:^{
         for (id<EXContactSyncObserver> observer in self.syncObservers) {
             if (![observer respondsToSelector:@selector(contactsSyncerDidFinishContactsSync:)]) {
                 continue;
             }
             [observer contactsSyncerDidFinishContactsSync:self];
         }
-    });
+    }];
 }
 
 - (void)fireDidFailContactsSyncWithError:(NSError *)error
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [self.mainQueue addOperationWithBlock:^{
         for (id<EXContactSyncObserver> observer in self.syncObservers) {
             if (![observer respondsToSelector:@selector(contactsSyncerDidFailContactsSync:withError:)]) {
                 continue;
             }
             [observer contactsSyncerDidFailContactsSync:self withError:error];
         }
-    });
+    }];
 }
 
 - (void)fireDidStartPhotosSync:(NSUInteger)photosCount
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [self.mainQueue addOperationWithBlock:^{
         for (id<EXContactSyncObserver> observer in self.syncObservers) {
             if (![observer respondsToSelector:@selector(contactsSyncer:didStartPhotosSync:)]) {
                 continue;
             }
             [observer contactsSyncer:self didStartPhotosSync:photosCount];
         }
-    });
+    }];
 }
 
 - (void)fireDidSyncPhotos:(NSUInteger)syncedPhotosCount ofTotal:(NSUInteger)totalPhotosCount
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    // TODO: Replace next line with the best solution,
+    //     which prevents firing this event after 'fireDidStartPhotosSync' event.
+    if (!self.syncPhotos) { return; }
+    [self.mainQueue addOperationWithBlock:^{
         for (id<EXContactSyncObserver> observer in self.syncObservers) {
             if (![observer respondsToSelector:@selector(contactsSyncer:didSyncPhotos:ofTotal:)]) {
                 continue;
             }
             [observer contactsSyncer:self didSyncPhotos:syncedPhotosCount ofTotal:totalPhotosCount];
         }
-    });
+    }];
 }
 
 - (void)fireDidFinishPhotosSync
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [self.mainQueue addOperationWithBlock:^{
         for (id<EXContactSyncObserver> observer in self.syncObservers) {
             if (![observer respondsToSelector:@selector(contactsSyncerDidFinishPhotosSync:)]) {
                 continue;
             }
             [observer contactsSyncerDidFinishPhotosSync:self];
         }
-    });
+    }];
 }
 
 - (void)fireDidFailPhotosSync:(EXContactsSyncer *)contactsSyncer withError:(NSError *)error
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [self.mainQueue addOperationWithBlock:^{
         for (id<EXContactSyncObserver> observer in self.syncObservers) {
             if (![observer respondsToSelector:@selector(contactsSyncerDidFailPhotosSync:withError:)]) {
                 continue;
             }
             [observer contactsSyncerDidFailPhotosSync:self withError:error];
         }
-    });
-}
-
-#pragma mark - State change log.
-- (void)logInternalStateChanged:(EXContactsSyncerState)newState
-{
-    NSLog(@"Contacts syncer: new internal state %d", newState);
+    }];
 }
 
 @end

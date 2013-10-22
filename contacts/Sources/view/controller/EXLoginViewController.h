@@ -16,4 +16,5 @@
 
 /// @name UI actions
 - (IBAction)signIn:(id)sender;
+- (IBAction)showPassword:(id)sender;
 @end

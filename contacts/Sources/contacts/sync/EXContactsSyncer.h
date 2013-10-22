@@ -24,6 +24,12 @@ typedef void(^EXContactsSyncerCompletion)(BOOL success, NSError *error);
 /// @name Singleton
 + (instancetype)sharedInstance;
 
+/// @name Accessibility
+/**
+ * @return YES if syncer state is not equal to EXContactsSyncerState_NotAccessible, NO - otherwise.
+ */
+- (BOOL)isAccessible;
+
 /// @name Configuration
 // Enable or disable photos loading / synchronization.
 @property (assign, nonatomic) BOOL photosLoadingEnabled;
@@ -72,10 +78,8 @@ typedef void(^EXContactsSyncerCompletion)(BOOL success, NSError *error);
 - (void)sleep;
 
 /// @name Sync state
-/**
- * @return YES if syncer state is not equal to EXContactsSyncerState_NotAccessible, NO - otherwise.
- */
-- (BOOL)isAccessible;
+- (BOOL)isSyncContacts;
+- (BOOL)isSyncPhotos;
 
 /// @name Sync observing
 - (NSDate *)lastSyncDate;

@@ -15,6 +15,7 @@ static NSString * const kRootSettingsKey_UseLocalNotifications = @"UseLocalNotif
 static NSString * const kRootSettingsKey_CoworkersGroupName = @"CoworkersGroupKey";
 static NSString * const kRootSettingsKey_LastSyncDate = @"LastSyncDateKey";
 static NSString * const kRootSettingsKey_ContactsDatabaseVersion = @"ContactsDatabaseVersionKey";
+static NSString * const kRootSettingsKey_SyncPeriodKey = @"SyncPeriodKey";
 
 @implementation EXAppSettings
 
@@ -45,6 +46,11 @@ static NSString * const kRootSettingsKey_ContactsDatabaseVersion = @"ContactsDat
 {
     [[NSUserDefaults standardUserDefaults] setBool:enable forKey:kRootSettingsKey_UseMobileNetworks];
     [self save];
+}
+
++ (NSUInteger)syncPeriod
+{
+    return [[NSUserDefaults standardUserDefaults] integerForKey:kRootSettingsKey_SyncPeriodKey];
 }
 
 #pragma mark - Notifications

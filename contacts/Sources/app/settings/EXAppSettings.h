@@ -24,6 +24,8 @@
 + (BOOL)useMobileNetworks;
 + (void)setUseMobileNetworks:(BOOL)enable;
 
++ (NSUInteger)syncPeriod;
+
 /// @name Notifications
 + (BOOL)useLocalNotifications;
 + (void)setUseLocalNotifications:(BOOL)enable;
