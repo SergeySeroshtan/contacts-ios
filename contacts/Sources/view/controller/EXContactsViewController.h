@@ -16,6 +16,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *syncContactsButton;
 @property (weak, nonatomic) IBOutlet UILabel *syncContactsStatusLabel;
 @property (weak, nonatomic) IBOutlet UILabel *syncPhotosStatusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *errorLabel;
 
 /// @name UI actions
 - (IBAction)syncNow:(id)sender;

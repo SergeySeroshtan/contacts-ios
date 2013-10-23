@@ -13,14 +13,6 @@
 // Service base URL.
 extern NSString * const kContactsServiceUrl;
 
-/// @name Errors description
-extern NSString * const EXContactsServiceErrorDomain;
-typedef enum {
-    EXContactsServiceErrorCode_NotAuthorized = 100,
-    EXContactsServiceErrorCode_NotAvailable = 200,
-    EXContactsServiceErrorCode_Internal = 300
-} EXContactsServiceErrorCode;
-
 /// @name Callbacks
 typedef void(^EXContactsServiceCompletion)(BOOL success, id data, NSError *error) ;
 
@@ -28,6 +20,10 @@ typedef void(^EXContactsServiceCompletion)(BOOL success, id data, NSError *error
  * This class provide interface to interact with 'Exadel Office Tools - Contacts' REST service.
  */
 @interface EXContactsService : NSObject
+
+/// @name Configuration
+// Enable or disable mobile netwotk usage.
+@property (assign, nonatomic) BOOL useMobileNetworks;
 
 /// @name Authentication
 /**

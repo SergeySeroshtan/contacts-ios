@@ -227,9 +227,20 @@
                                 <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Error" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="PSk-Y4-wGC">
+                                <rect key="frame" x="20" y="458" width="280" height="42"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="42" id="dbd-oy-2jH"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="PSk-Y4-wGC" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="4ev-kb-2oe"/>
                             <constraint firstItem="NqX-ce-bvh" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="8WI-KP-zv4"/>
                             <constraint firstItem="RcA-DP-dS9" firstAttribute="top" secondItem="krX-Vj-bMw" secondAttribute="bottom" constant="8" symbolic="YES" id="BZO-fa-xWZ"/>
                             <constraint firstItem="S2a-mD-Mzz" firstAttribute="leading" secondItem="njW-v2-uIE" secondAttribute="leading" constant="20" symbolic="YES" id="OfO-Kl-17Y"/>
@@ -242,6 +253,8 @@
                             <constraint firstItem="krX-Vj-bMw" firstAttribute="top" secondItem="2bE-57-C0p" secondAttribute="bottom" constant="8" symbolic="YES" id="ecq-0J-2jN"/>
                             <constraint firstAttribute="trailing" secondItem="RcA-DP-dS9" secondAttribute="trailing" constant="20" symbolic="YES" id="gn0-a6-1gA"/>
                             <constraint firstItem="fZG-mi-aUF" firstAttribute="top" secondItem="BZ2-Nn-ydb" secondAttribute="bottom" constant="8" symbolic="YES" id="gze-R2-XE3"/>
+                            <constraint firstItem="5YG-GZ-L6k" firstAttribute="top" secondItem="PSk-Y4-wGC" secondAttribute="bottom" constant="30" id="iIt-2M-zaZ"/>
+                            <constraint firstAttribute="trailing" secondItem="PSk-Y4-wGC" secondAttribute="trailing" constant="20" symbolic="YES" id="iQS-dN-tjR"/>
                             <constraint firstItem="2bE-57-C0p" firstAttribute="leading" secondItem="NqX-ce-bvh" secondAttribute="trailing" constant="8" symbolic="YES" id="lpC-w5-d6Q"/>
                             <constraint firstItem="Yat-Iy-i4D" firstAttribute="top" secondItem="5YG-GZ-L6k" secondAttribute="bottom" constant="20" symbolic="YES" id="pfy-MM-pvY"/>
                             <constraint firstAttribute="trailing" secondItem="2bE-57-C0p" secondAttribute="trailing" constant="20" symbolic="YES" id="pyW-eZ-Vcq"/>
@@ -261,6 +274,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="errorLabel" destination="PSk-Y4-wGC" id="XhJ-jj-Hdt"/>
                         <outlet property="lastSyncDateLabel" destination="2bE-57-C0p" id="EYz-ir-xDK"/>
                         <outlet property="syncContactsButton" destination="5YG-GZ-L6k" id="POg-cG-tCD"/>
                         <outlet property="syncContactsStatusLabel" destination="krX-Vj-bMw" id="pPC-Q6-tZf"/>

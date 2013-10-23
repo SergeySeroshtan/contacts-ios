@@ -24,23 +24,23 @@ typedef void(^EXContactsSyncerCompletion)(BOOL success, NSError *error);
 /// @name Singleton
 + (instancetype)sharedInstance;
 
-/// @name Accessibility
-/**
- * @return YES if syncer state is not equal to EXContactsSyncerState_NotAccessible, NO - otherwise.
- */
-- (BOOL)isAccessible;
-
 /// @name Configuration
 // Enable or disable photos loading / synchronization.
-@property (assign, nonatomic) BOOL photosLoadingEnabled;
+@property (assign, nonatomic) BOOL loadPhotos;
 // Enable or disable mobile netwotk usage.
-@property (assign, nonatomic) BOOL mobileNetworksEnabled;
+@property (assign, nonatomic) BOOL useMobileNetworks;
 // Enable or disable local notifications about synchronization completion.
 @property (assign, nonatomic) BOOL localNotificationEnabled;
 // Define contacts group name.
 @property (strong, nonatomic) NSString *groupName;
 // Define contacts and photos synchronization period in days.
 @property (assign, nonatomic) NSUInteger syncPeriod;
+
+/// @name Accessibility
+/**
+ * @return YES if syncer state is not equal to EXContactsSyncerState_NotAccessible, NO - otherwise.
+ */
+- (BOOL)isAccessible;
 
 /// @name Address Book
 /**
@@ -104,5 +104,3 @@ typedef void(^EXContactsSyncerCompletion)(BOOL success, NSError *error);
 - (void)contactsSyncerDidFailPhotosSync:(EXContactsSyncer *)contactsSyncer withError:(NSError *)error;
 
 @end
-
-

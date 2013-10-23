@@ -8,17 +8,17 @@
 
 #import "EXContactsService.h"
 
+#import <Reachability.h>
+#import <SSKeychain/SSKeychain.h>
 #import <RestKit/RestKit.h>
 #import "RKObjectMappingOperationDataSource.h"
 #import "RKMIMETypeSerialization.h"
 
-#import <SSKeychain/SSKeychain.h>
-
+#import "EXContactsError.h"
 #import "EXContact.h"
 #import "EXContactsMapping.h"
 
 #pragma mark - Public constants
-NSString * const EXContactsServiceErrorDomain = @"com.exadel.donetsk.office-tools.contacts";
 NSString * const kContactsServiceUrl = @"https://office-tools.donetsk.exadel.com/contacts/rest/";
 
 #pragma mark - Private constants
@@ -36,10 +36,16 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
 @implementation EXContactsService
 
 #pragma mark - Initialization
+static Reachability *reachability = nil;
 + (void)initialize
 {
     RKObjectManager *objectManager = [RKObjectManager managerWithBaseURL:[NSURL URLWithString:kContactsServiceUrl]];
     [RKObjectManager setSharedManager:objectManager];
+
+    reachability = [Reachability reachabilityForInternetConnection];
+    reachability.reachableOnWWAN = YES;
+    [reachability startNotifier];
+
 }
 
 #pragma mark - Authentication
@@ -48,6 +54,11 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
     PRECONDITION_ARG_NOT_NIL(name);
     PRECONDITION_ARG_NOT_NIL(password);
     PRECONDITION_ARG_NOT_NIL(completion);
+
+    if (![self isNetworkReachable]) {
+        completion(NO, nil, [EXContactsService noConnectionErrorWithMobileNetworksAllowed:self.useMobileNetworks]);
+        return;
+    }
 
     if ([self isUserSignedIn]) {
         [self signOut];
@@ -63,9 +74,14 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
         }
         failure:^(RKObjectRequestOperation *operation, NSError *error)
         {
-            NSString *message = NSLocalizedString(@"Wrong user name or password.",
-                    @"Error message: login authentication failed.");
-            completion(NO, nil, [EXContactsService notAuthorizedError:message]);
+            NSHTTPURLResponse *response =
+                    [error.userInfo valueForKeyPath:AFNetworkingOperationFailingURLResponseErrorKey];
+            static const int kStatusCode_NotAuthorized = 401;
+            if (response != nil && response.statusCode == kStatusCode_NotAuthorized) {
+                completion(NO, nil, [EXContactsService notAuthorizedError]);
+            } else {
+                completion(NO, nil, [EXContactsService notAvailableError]);
+            }
         }
     ];
 }
@@ -146,6 +162,11 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
         completion(NO, nil, [EXContactsService notAuthorizedError]);
         return;
     }
+
+    if (![self isNetworkReachable]) {
+        completion(NO, nil, [EXContactsService noConnectionErrorWithMobileNetworksAllowed:self.useMobileNetworks]);
+        return;
+    }
     
     [[self preparedObjectManager] getObjectsAtPath:@"my.json" parameters:nil
         success:^(RKObjectRequestOperation *operation, RKMappingResult *mappingResult)
@@ -157,9 +178,7 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
             NSHTTPURLResponse *response =
                     [error.userInfo valueForKeyPath:AFNetworkingOperationFailingURLResponseErrorKey];
             static const int kStatusCode_NotAuthorized = 401;
-            if (response == nil) {
-                completion(NO, nil, [EXContactsService internalError]);
-            } else if (response.statusCode == kStatusCode_NotAuthorized) {
+            if (response != nil && response.statusCode == kStatusCode_NotAuthorized) {
                 completion(NO, nil, [EXContactsService notAuthorizedError]);
             } else {
                 completion(NO, nil, [EXContactsService notAvailableError]);
@@ -175,6 +194,11 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
         completion(NO, nil, [EXContactsService notAuthorizedError]);
         return;
     }
+
+    if (![self isNetworkReachable]) {
+        completion(NO, nil, [EXContactsService noConnectionErrorWithMobileNetworksAllowed:self.useMobileNetworks]);
+        return;
+    }
     
     [[self preparedObjectManager] getObjectsAtPath:@"coworkers.json" parameters:nil
         success:^(RKObjectRequestOperation *operation, RKMappingResult *mappingResult)
@@ -186,9 +210,7 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
             NSHTTPURLResponse *response =
                     [error.userInfo valueForKeyPath:AFNetworkingOperationFailingURLResponseErrorKey];
             static const int kStatusCode_NotAuthorized = 401;
-            if (response == nil) {
-                completion(NO, nil, [EXContactsService internalError]);
-            } else if (response.statusCode == kStatusCode_NotAuthorized) {
+            if (response != nil && response.statusCode == kStatusCode_NotAuthorized) {
                 completion(NO, nil, [EXContactsService notAuthorizedError]);
             } else {
                 completion(NO, nil, [EXContactsService notAvailableError]);
@@ -199,18 +221,30 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
 }
 
 #pragma mark - Private
+#pragma mark - Connection check
+- (BOOL)isNetworkReachable
+{
+    if (reachability.isReachableViaWiFi) {
+        return YES;
+    } else if (reachability.isReachableViaWWAN) {
+        return self.useMobileNetworks;
+    } else {
+        return NO;
+    }
+}
+
 #pragma mark - Processing errors
 /**
  * Creates error for this domain.
  */
-+ (NSError *)createErrorWithCode:(EXContactsServiceErrorCode)code message:(NSString *)message
++ (NSError *)createErrorWithCode:(EXContactsErrorCode)code message:(NSString *)message
         userInfo:(NSDictionary *)userInfo
 {
     NSMutableDictionary *allUserInfo = [NSMutableDictionary dictionaryWithDictionary:userInfo];
     if (message != nil) {
         [allUserInfo setObject:message forKey:NSLocalizedDescriptionKey];
     }
-    return [[NSError alloc] initWithDomain:EXContactsServiceErrorDomain code:code userInfo:allUserInfo];
+    return [[NSError alloc] initWithDomain:EXContactsErrorDomain code:code userInfo:allUserInfo];
 }
 
 /**
@@ -218,7 +252,7 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
  */
 + (NSError *)notAuthorizedError
 {
-    NSString *message = NSLocalizedString(@"User is not authorized.", @"Error message: User is not authorized.");
+    NSString *message = @"User is not authorized.";
     return [self notAuthorizedError:message];
 }
 + (NSError *)notAuthorizedError:(NSString *)errorMessage
@@ -227,7 +261,7 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
 }
 + (NSError *)notAuthorizedError:(NSString *)errorMessage userInfo:(NSDictionary *)userInfo
 {
-    return [self createErrorWithCode:EXContactsServiceErrorCode_NotAuthorized message:errorMessage userInfo:userInfo];
+    return [self createErrorWithCode:EXContactsErrorCode_NotAuthorized message:errorMessage userInfo:userInfo];
 }
 
 /**
@@ -235,8 +269,7 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
  */
 + (NSError *)notAvailableError
 {
-    NSString *message = NSLocalizedString(@"Server is not available at this moment, try again later.",
-            @"Error message: server is not available.");
+    NSString *message = @"Server is not available at this moment, try again later.";
     return [self notAvailableError:message];
 }
 + (NSError *)notAvailableError:(NSString *)errorMessage
@@ -245,7 +278,7 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
 }
 + (NSError *)notAvailableError:(NSString *)errorMessage userInfo:(NSDictionary *)userInfo
 {
-    return [self createErrorWithCode:EXContactsServiceErrorCode_NotAvailable message:errorMessage userInfo:userInfo];
+    return [self createErrorWithCode:EXContactsErrorCode_NotAvailable message:errorMessage userInfo:userInfo];
 }
 
 /**
@@ -253,7 +286,7 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
  */
 + (NSError *)internalError
 {
-    NSString *message = NSLocalizedString(@"Internal error.", @"Error message: internal error.");
+    NSString *message = @"Internal error.";
     return [self internalError:message];
 }
 + (NSError *)internalError:(NSString *)errorMessage
@@ -262,7 +295,27 @@ static NSString * const kContactsServiceName = @"com.exadel.donetsk.office-tools
 }
 + (NSError *)internalError:(NSString *)errorMessage userInfo:(NSDictionary *)userInfo
 {
-    return [self createErrorWithCode:EXContactsServiceErrorCode_Internal message:errorMessage userInfo:userInfo];
+    return [self createErrorWithCode:EXContactsErrorCode_Internal message:errorMessage userInfo:userInfo];
+}
+
+/**
+ * Creates NSError object, that describes 'no connection' error.
+ */
++ (NSError *)noConnectionErrorWithMobileNetworksAllowed:(BOOL)useMobileNetworksAllowed
+{
+    NSString *message = @"No internet connection.";
+    if (reachability.isReachableViaWWAN && useMobileNetworksAllowed) {
+        message = @"No WiFi internet connection." ;
+    }
+    return [self noConnectionError:message];
+}
++ (NSError *)noConnectionError:(NSString *)errorMessage
+{
+    return [self noConnectionError:errorMessage userInfo:nil];
+}
++ (NSError *)noConnectionError:(NSString *)errorMessage userInfo:(NSDictionary *)userInfo
+{
+    return [self createErrorWithCode:EXContactsErrorCode_NoConnection message:errorMessage userInfo:userInfo];
 }
 
 #pragma mark - RestKit helpers

@@ -25,7 +25,14 @@ static NSString * const kRootSettingsKey_SyncPeriodKey = @"SyncPeriodKey";
 #pragma mark - Initialize
 + (void)initialize
 {
-    if (![[NSUserDefaults standardUserDefaults] objectForKey:kRootSettingsKey_LoadPhotos])  {
+    BOOL fullyInitialized =
+            [[NSUserDefaults standardUserDefaults] objectForKey:kRootSettingsKey_LoadPhotos] &&
+            [[NSUserDefaults standardUserDefaults] objectForKey:kRootSettingsKey_UseMobileNetworks] &&
+            [[NSUserDefaults standardUserDefaults] objectForKey:kRootSettingsKey_UseLocalNotifications] &&
+            [[NSUserDefaults standardUserDefaults] objectForKey:kRootSettingsKey_CoworkersGroupName] &&
+            [[NSUserDefaults standardUserDefaults] objectForKey:kRootSettingsKey_SyncPeriodKey];
+
+    if (!fullyInitialized)  {
 
         NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
         NSString *settingsPropertyListPath = [mainBundlePath stringByAppendingPathComponent:kRootSettings_Path];
@@ -35,7 +42,7 @@ static NSString * const kRootSettingsKey_SyncPeriodKey = @"SyncPeriodKey";
         NSMutableArray *preferenceArray = [settingsPropertyList objectForKey:@"PreferenceSpecifiers"];
         NSMutableDictionary *registerableDictionary = [NSMutableDictionary dictionary];
 
-        for (int i = 0; i < [preferenceArray count]; i++)  { 
+        for (int i = 0; i < [preferenceArray count]; ++i)  {
             NSString *key = [[preferenceArray objectAtIndex:i] objectForKey:@"Key"];
             if (key)  {
                 id value = [[preferenceArray objectAtIndex:i] objectForKey:@"DefaultValue"];

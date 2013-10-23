@@ -13,17 +13,6 @@
 #import "EXContactsService.h"
 #import "EXContactsStorage.h"
 
-/**
- * Syncer state type.
- */
-typedef enum {
-    EXContactsSyncerState_Stopped = 0,
-    EXContactsSyncerState_Started,
-    EXContactsSyncerState_Suspended,
-    EXContactsSyncerState_Resumed,
-    EXContactsSyncerState_NotAccessible
-} EXContactsSyncerState;
-
 #pragma mark - Configuration constatnts
 static const NSUInteger kPhotos_MaxConcurrentCount = 3;
 
@@ -41,7 +30,6 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
 @property (strong, nonatomic) NSMutableSet *syncObservers;
 @property (strong, nonatomic) AFHTTPClient *httpClient;
 @property (strong, nonatomic) NSOperationQueue *photosSyncQueue;
-
 @property (strong, nonatomic) NSOperationQueue *mainQueue;
 
 /// @name Clue for improper use (produces compile time error).
@@ -81,6 +69,13 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
         self.mainQueue = [NSOperationQueue mainQueue];
     }
     return self;
+}
+
+#pragma mark - Accessors
+- (void)setUseMobileNetworks:(BOOL)mobileNetworksEnabled
+{
+    _useMobileNetworks = mobileNetworksEnabled;
+    self.contactsService.useMobileNetworks = mobileNetworksEnabled;
 }
 
 #pragma mark - Accessiblity
@@ -172,7 +167,6 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
     }
 }
 
-
 - (BOOL)needSyncAll
 {
     if ([self lastSyncDate] == nil) {
@@ -212,7 +206,7 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
 {
     if (self.syncPhotos) {
         return;
-    } else if (!self.photosLoadingEnabled) {
+    } else if (!self.loadPhotos) {
         return;
     }
     
@@ -267,7 +261,7 @@ static NSString * const kPhotosSyncQueueObserveValue_OperationCount = @"operatio
 {
     if (!self.syncPhotos) {
         return;
-    } else if (!self.photosLoadingEnabled) {
+    } else if (!self.loadPhotos) {
         [self stopPhotosSync];
         return;
     }

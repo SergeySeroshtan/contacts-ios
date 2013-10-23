@@ -44,6 +44,7 @@
 		682BA2A11813E142007498CE /* EXContactsInfoStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 682BA2951813E142007498CE /* EXContactsInfoStorage.m */; };
 		682BA2A21813E142007498CE /* EXContactsPhotoSyncer.m in Sources */ = {isa = PBXBuildFile; fileRef = 682BA2981813E142007498CE /* EXContactsPhotoSyncer.m */; };
 		682BA2A51813E192007498CE /* EXContactsSyncer.m in Sources */ = {isa = PBXBuildFile; fileRef = 682BA2A41813E192007498CE /* EXContactsSyncer.m */; };
+		683B62AC18168E0C0000AFFA /* EXContactsError.m in Sources */ = {isa = PBXBuildFile; fileRef = 683B62AB18168E0C0000AFFA /* EXContactsError.m */; };
 		6877C32A180C2299009BA4F2 /* contacts.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6877C328180C2299009BA4F2 /* contacts.xcdatamodeld */; };
 		6879F6851802E7450069226A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6879F6841802E7450069226A /* Foundation.framework */; };
 		6879F6871802E7450069226A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6879F6861802E7450069226A /* CoreGraphics.framework */; };
@@ -106,6 +107,8 @@
 		682BA2981813E142007498CE /* EXContactsPhotoSyncer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXContactsPhotoSyncer.m; sourceTree = "<group>"; };
 		682BA2A31813E192007498CE /* EXContactsSyncer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXContactsSyncer.h; sourceTree = "<group>"; };
 		682BA2A41813E192007498CE /* EXContactsSyncer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXContactsSyncer.m; sourceTree = "<group>"; };
+		683B62AA18168E0C0000AFFA /* EXContactsError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EXContactsError.h; sourceTree = "<group>"; };
+		683B62AB18168E0C0000AFFA /* EXContactsError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EXContactsError.m; sourceTree = "<group>"; };
 		6877C329180C2299009BA4F2 /* contacts.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = contacts.xcdatamodel; sourceTree = "<group>"; };
 		6879F6811802E7450069226A /* contacts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = contacts.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6879F6841802E7450069226A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -190,6 +193,7 @@
 		680BCD161802E85800CEBF9C /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				683B62A918168DFE0000AFFA /* error */,
 				680BCD171802E85800CEBF9C /* app */,
 				682BA27A1813E142007498CE /* contacts */,
 				680BCD1C1802E85800CEBF9C /* utils */,
@@ -377,6 +381,15 @@
 			path = sync;
 			sourceTree = "<group>";
 		};
+		683B62A918168DFE0000AFFA /* error */ = {
+			isa = PBXGroup;
+			children = (
+				683B62AA18168E0C0000AFFA /* EXContactsError.h */,
+				683B62AB18168E0C0000AFFA /* EXContactsError.m */,
+			);
+			path = error;
+			sourceTree = "<group>";
+		};
 		6879F6781802E7450069226A = {
 			isa = PBXGroup;
 			children = (
@@ -559,6 +572,7 @@
 				681136C718054C7600BFB3BD /* EXContactsViewController.m in Sources */,
 				680BCD2E1802E85800CEBF9C /* NSString+Utils.m in Sources */,
 				6877C32A180C2299009BA4F2 /* contacts.xcdatamodeld in Sources */,
+				683B62AC18168E0C0000AFFA /* EXContactsError.m in Sources */,
 				682BA29E1813E142007498CE /* EXContactsStorage.m in Sources */,
 				682BA2A01813E142007498CE /* _EXContactInfo.m in Sources */,
 				682BA2A11813E142007498CE /* EXContactsInfoStorage.m in Sources */,

@@ -124,6 +124,7 @@ static NSString * const kSyncStatusLabel_Stopped = @"stopped";
 - (void)contactsSyncerDidFailContactsSync:(EXContactsSyncer *)contactsSyncer withError:(NSError *)error
 {
     self.syncContactsStatusLabel.text = kSyncStatusLabel_Stopped;
+    [self showError:error];
 }
 
 - (void)contactsSyncer:(EXContactsSyncer *)contactsSyncer didStartPhotosSync:(NSUInteger)photosCount
@@ -146,6 +147,7 @@ static NSString * const kSyncStatusLabel_Stopped = @"stopped";
 - (void)contactsSyncerDidFailPhotosSync:(EXContactsSyncer *)contactsSyncer withError:(NSError *)error
 {
     self.syncPhotosStatusLabel.text = kSyncStatusLabel_Stopped;
+    [self showError:error];
 }
 
 #pragma mark - Private
@@ -175,6 +177,24 @@ static NSString * const kSyncStatusLabel_Stopped = @"stopped";
     self.syncPhotosStatusLabel.text =
             [[EXContactsSyncer sharedInstance] isSyncPhotos] ? kSyncStatusLabel_Started : kSyncStatusLabel_Stopped;
 
+}
+
+- (void)showError:(NSError *)error;
+{
+    static const CGFloat showHideAnimationDuration = 0.3;
+    if (error) {
+        self.errorLabel.text = [error localizedDescription];
+        [UIView transitionWithView:self.errorLabel duration:showHideAnimationDuration
+                options:UIViewAnimationOptionTransitionCrossDissolve animations:nil completion:nil];
+        self.errorLabel.hidden = NO;
+    }
+    double delayInSeconds = 0.5;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        [UIView transitionWithView:self.errorLabel duration:showHideAnimationDuration
+                options:UIViewAnimationOptionTransitionCrossDissolve animations:nil completion:nil];
+        self.errorLabel.hidden = YES;
+    });
 }
 
 @end
